@@ -22,18 +22,14 @@ export const AuthProvider = ({ children }) => {
 
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || "Login failed");
-            console.log(data)
 
             // 🔹 User ka authentication token local storage me save karna
             localStorage.setItem("token", data.token);
-
-            console.log("User Data:", data.user); // 🔹 Debugging ke liye user data console me print kiya
 
             // 🔹 User state update karna
             setCurrentUser(data.user);
             setUserLoggedIn(true);
         } catch (error) {
-            console.error("Login error:", error.message);
             throw error; // 🔹 Error ko handle karne ke liye throw kiya
         }
     };

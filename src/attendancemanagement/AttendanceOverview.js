@@ -15,8 +15,8 @@ const AttendanceOverview = ({ attendanceData = { labels: [], datasets: [] } }) =
 
   return (
     <div>
-      {/* <h2 className="text-xl font-semibold mb-4">Attendance Overview</h2>
-      <Doughnut ref={chartRef} data={attendanceData} /> */}
+      <h2 className="text-xl font-semibold mb-4">Attendance Overview</h2>
+      <Doughnut ref={chartRef} data={attendanceData} />
     </div>
   );
 };

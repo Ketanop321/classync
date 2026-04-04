@@ -1,121 +1,211 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from 'react';
+import { fetchTableRows, insertRow } from '../services/supabaseMvpApi';
+
+const CATEGORY_LABELS = {
+  semester: 'Semester Dates',
+  deadline: 'Important Deadlines',
+  exam: 'Exam Dates',
+  holiday: 'Holidays and Observances',
+  event: 'Events and Activities',
+  result: 'Grading and Result Dates',
+  internship: 'Internship and Placement Drives',
+  faculty_development: 'Faculty Development Days',
+};
+
+const Section = ({ title, items }) => (
+  <div className="p-4 bg-white shadow rounded-lg">
+    <h2 className="text-xl font-semibold mb-4">{title}</h2>
+    {items.length === 0 ? (
+      <p className="text-gray-500">No events in this category yet.</p>
+    ) : (
+      <ul className="list-disc pl-5 space-y-2">
+        {items.map((item) => (
+          <li key={item.id} className="text-gray-700">
+            <span className="font-medium">{item.name}:</span>{' '}
+            {item.end_date && item.end_date !== item.start_date
+              ? `${item.start_date} - ${item.end_date}`
+              : item.start_date}
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+);
 
 const AcademicCalendar = () => {
-  const [selectedSemester, setSelectedSemester] = useState("All");
+  const [selectedSemester, setSelectedSemester] = useState('All');
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [formState, setFormState] = useState({
+    category: 'deadline',
+    name: '',
+    start_date: '',
+    end_date: '',
+    semester: 'All',
+    details: '',
+  });
 
-  const calendarData = {
-    semesters: [
-      { name: "Semester 1", start: "2024-01-10", end: "2024-06-10" },
-      { name: "Semester 2", start: "2024-07-10", end: "2024-12-10" },
-    ],
-    deadlines: [
-      { name: "Course Registration", date: "2024-01-15", semester: "Semester 1" },
-      { name: "Add/Drop Courses", date: "2024-01-25", semester: "Semester 1" },
-      { name: "Withdraw Deadline", date: "2024-02-20", semester: "Semester 1" },
-      { name: "Final Exams", date: "2024-12-05", semester: "Semester 2" },
-    ],
-    exams: [
-      { name: "Midterm Exams", date: "2024-03-10 - 2024-03-20", semester: "Semester 1" },
-      { name: "Final Exams", date: "2024-06-01 - 2024-06-10", semester: "Semester 1" },
-    ],
-    holidays: [
-      { name: "National Holiday", date: "2024-01-26", semester: "All" },
-      { name: "Independence Day", date: "2024-08-15", semester: "All" },
-    ],
-    events: [
-      { name: "Orientation", date: "2024-01-05", semester: "Semester 1" },
-      { name: "Annual Day", date: "2024-04-15", semester: "Semester 1" },
-    ],
-    results: [
-      { name: "Midterm Results", date: "2024-03-25", semester: "Semester 1" },
-      { name: "Final Results", date: "2024-06-20", semester: "Semester 1" },
-    ],
-    internships: [
-      { name: "Internship Registration", date: "2024-05-01", semester: "Semester 1" },
-      { name: "On-Campus Placements", date: "2024-09-10", semester: "Semester 2" },
-    ],
-    facultyDevelopment: [
-      { name: "Faculty Training", date: "2024-06-15", semester: "Semester 1" },
-    ],
+  const loadEvents = async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const rows = await fetchTableRows('academic_calendar_events', {
+        orderBy: 'start_date',
+        orderConfig: { ascending: true },
+      });
+      setEvents(rows || []);
+    } catch (err) {
+      setError(err.message || 'Failed to load calendar events.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const filteredItems = (items) => {
-    return items.filter(
-      (item) => selectedSemester === "All" || item.semester === selectedSemester
+  useEffect(() => {
+    loadEvents();
+  }, []);
+
+  const semesterOptions = useMemo(() => {
+    const unique = Array.from(new Set(events.map((event) => event.semester))).filter(Boolean);
+    return ['All', ...unique];
+  }, [events]);
+
+  const filteredEvents = useMemo(() => {
+    return events.filter(
+      (event) => selectedSemester === 'All' || event.semester === selectedSemester || event.semester === 'All'
     );
+  }, [events, selectedSemester]);
+
+  const groupedByCategory = useMemo(() => {
+    return filteredEvents.reduce((acc, event) => {
+      if (!acc[event.category]) {
+        acc[event.category] = [];
+      }
+      acc[event.category].push(event);
+      return acc;
+    }, {});
+  }, [filteredEvents]);
+
+  const handleFormChange = (event) => {
+    const { name, value } = event.target;
+    setFormState((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError('');
+
+    try {
+      await insertRow('academic_calendar_events', {
+        category: formState.category,
+        name: formState.name,
+        start_date: formState.start_date,
+        end_date: formState.end_date || null,
+        semester: formState.semester,
+        details: formState.details || null,
+      });
+
+      setFormState({
+        category: 'deadline',
+        name: '',
+        start_date: '',
+        end_date: '',
+        semester: 'All',
+        details: '',
+      });
+
+      await loadEvents();
+    } catch (err) {
+      setError(err.message || 'Could not add calendar event.');
+    }
   };
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-4xl font-bold text-center mb-8">Academic Calendar</h1>
 
-      {/* Semester Filter */}
-      <div className="text-center mb-4">
+      {error && <p className="text-red-600 mb-4">{error}</p>}
+
+      <div className="p-4 bg-white rounded-lg shadow mb-6">
+        <h2 className="text-xl font-semibold mb-4">Add Calendar Event</h2>
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <select name="category" value={formState.category} onChange={handleFormChange} className="p-2 border rounded">
+            {Object.keys(CATEGORY_LABELS).map((key) => (
+              <option key={key} value={key}>{CATEGORY_LABELS[key]}</option>
+            ))}
+          </select>
+          <input
+            type="text"
+            name="name"
+            placeholder="Event name"
+            value={formState.name}
+            onChange={handleFormChange}
+            required
+            className="p-2 border rounded"
+          />
+          <input
+            type="text"
+            name="semester"
+            placeholder="Semester (e.g. Semester 1)"
+            value={formState.semester}
+            onChange={handleFormChange}
+            className="p-2 border rounded"
+          />
+          <input
+            type="date"
+            name="start_date"
+            value={formState.start_date}
+            onChange={handleFormChange}
+            required
+            className="p-2 border rounded"
+          />
+          <input
+            type="date"
+            name="end_date"
+            value={formState.end_date}
+            onChange={handleFormChange}
+            className="p-2 border rounded"
+          />
+          <input
+            type="text"
+            name="details"
+            placeholder="Details (optional)"
+            value={formState.details}
+            onChange={handleFormChange}
+            className="p-2 border rounded"
+          />
+          <button type="submit" className="md:col-span-3 bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+            Add Event
+          </button>
+        </form>
+      </div>
+
+      <div className="text-center mb-6">
         <label className="mr-3 font-medium text-lg">Filter by Semester:</label>
         <select
           className="p-2 rounded border border-gray-300"
           value={selectedSemester}
           onChange={(e) => setSelectedSemester(e.target.value)}
         >
-          <option value="All">All</option>
-          {calendarData.semesters.map((sem, idx) => (
-            <option key={idx} value={sem.name}>{sem.name}</option>
+          {semesterOptions.map((semester) => (
+            <option key={semester} value={semester}>{semester}</option>
           ))}
         </select>
       </div>
 
-      {/* Calendar Sections */}
-      <div className="space-y-6">
-        <Section title="Semester Dates" items={calendarData.semesters} />
-
-        <Section title="Important Deadlines" items={filteredItems(calendarData.deadlines)} />
-
-        <Section title="Exam Dates" items={filteredItems(calendarData.exams)} />
-
-        {/* Customized Holidays Section */}
-        <div className="p-4 bg-white shadow rounded-lg">
-          <h2 className="text-xl font-semibold mb-4">Holidays and Observances</h2>
-          <table className="w-full border">
-            <thead className="bg-gray-200 text-gray-700">
-              <tr>
-                <th className="border p-2">Holiday</th>
-                <th className="border p-2">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredItems(calendarData.holidays).map((holiday, index) => (
-                <tr key={index} className="text-gray-700">
-                  <td className="border p-2">{holiday.name}</td>
-                  <td className="border p-2">{holiday.date}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {loading ? (
+        <p className="text-center text-gray-600">Loading calendar...</p>
+      ) : (
+        <div className="space-y-6">
+          {Object.entries(CATEGORY_LABELS).map(([category, label]) => (
+            <Section key={category} title={label} items={groupedByCategory[category] || []} />
+          ))}
         </div>
-
-        <Section title="Events and Activities" items={filteredItems(calendarData.events)} />
-
-        <Section title="Grading and Result Dates" items={filteredItems(calendarData.results)} />
-
-        <Section title="Internship and Placement Drives" items={filteredItems(calendarData.internships)} />
-
-        <Section title="Faculty Development Days" items={filteredItems(calendarData.facultyDevelopment)} />
-      </div>
+      )}
     </div>
   );
 };
-
-const Section = ({ title, items }) => (
-  <div className="p-4 bg-white shadow rounded-lg">
-    <h2 className="text-xl font-semibold mb-4">{title}</h2>
-    <ul className="list-disc pl-5 space-y-2">
-      {items.map((item, index) => (
-        <li key={index} className="text-gray-700">
-          <span className="font-medium">{item.name}:</span> {item.date || `${item.start} - ${item.end}`}
-        </li>
-      ))}
-    </ul>
-  </div>
-);
 
 export default AcademicCalendar;

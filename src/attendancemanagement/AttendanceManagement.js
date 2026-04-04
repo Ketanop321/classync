@@ -1,44 +1,69 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Doughnut } from 'react-chartjs-2';
-import 'chart.js/auto'; // Import necessary chart.js features
+import 'chart.js/auto';
+import { fetchTableRows } from '../services/supabaseMvpApi';
 
-// Create a MotionLink component that uses the Link component with motion
 const MotionLink = motion(Link);
 
 const AttendanceManagement = () => {
-  // Sample attendance records
-  const attendanceRecords = [
-    { id: 1, date: '2024-10-01', status: 'Present' },
-    { id: 2, date: '2024-10-02', status: 'Absent' },
-    { id: 3, date: '2024-10-03', status: 'Leave' },
-    { id: 4, date: '2024-10-04', status: 'Present' },
-  ];
+  const [records, setRecords] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // Filter records for the current month
-  const currentMonth = new Date().getMonth() + 1; // months are zero-indexed
-  const currentMonthRecords = attendanceRecords.filter(record =>
-    new Date(record.date).getMonth() + 1 === currentMonth
-  );
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const rows = await fetchTableRows('attendance_records', {
+          orderBy: 'date',
+          orderConfig: { ascending: false },
+        });
+        setRecords(rows || []);
+      } catch (err) {
+        setError(err.message || 'Failed to load attendance records.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const presentCount = currentMonthRecords.filter(record => record.status === 'Present').length;
-  const absentCount = currentMonthRecords.filter(record => record.status === 'Absent').length;
-  const leaveCount = currentMonthRecords.filter(record => record.status === 'Leave').length;
+    loadData();
+  }, []);
 
-  // Calculate total and percentages
-  const totalRecords = currentMonthRecords.length;
-  const presentPercentage = ((presentCount / totalRecords) * 100).toFixed(1);
-  const absentPercentage = ((absentCount / totalRecords) * 100).toFixed(1);
-  const leavePercentage = ((leaveCount / totalRecords) * 100).toFixed(1);
+  const summary = useMemo(() => {
+    const now = new Date();
+    const month = now.getMonth();
+    const year = now.getFullYear();
 
-  // Pie chart data
+    const monthly = records.filter((record) => {
+      const date = new Date(record.date);
+      return date.getMonth() === month && date.getFullYear() === year;
+    });
+
+    const presentCount = monthly.filter((record) => record.status === 'Present').length;
+    const absentCount = monthly.filter((record) => record.status === 'Absent').length;
+    const leaveCount = monthly.filter((record) => record.status === 'Leave').length;
+
+    const total = monthly.length || 1;
+
+    return {
+      presentCount,
+      absentCount,
+      leaveCount,
+      presentPercentage: ((presentCount / total) * 100).toFixed(1),
+      absentPercentage: ((absentCount / total) * 100).toFixed(1),
+      leavePercentage: ((leaveCount / total) * 100).toFixed(1),
+    };
+  }, [records]);
+
   const attendanceData = {
     labels: ['Present', 'Absent', 'Leave'],
     datasets: [
       {
         label: 'Attendance',
-        data: [presentCount, absentCount, leaveCount],
+        data: [summary.presentCount, summary.absentCount, summary.leaveCount],
         backgroundColor: ['#4CAF50', '#F44336', '#FFC107'],
         hoverBackgroundColor: ['#45A049', '#E53935', '#FFB300'],
       },
@@ -56,9 +81,10 @@ const AttendanceManagement = () => {
         <h1 className="text-2xl md:text-3xl font-bold">Attendance Management</h1>
       </motion.header>
 
-      {/* Navigation Links */}
+      {error && <p className="text-red-600 mb-4">{error}</p>}
+
       <nav className="flex flex-col md:flex-row justify-center gap-3 md:gap-4 mb-4 md:mb-6">
-        {['/attendance-record', '/attendance-calendar' ].map((link, index) => (
+        {['/attendance-record', '/attendance-calendar'].map((link, index) => (
           <MotionLink
             to={link}
             key={index}
@@ -67,35 +93,36 @@ const AttendanceManagement = () => {
             transition={{ duration: 0.5, delay: index * 0.1 }}
             className="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition duration-200 text-center"
           >
-            {link.split('/').pop().replace('-', ' ').replace(/^\w/, c => c.toUpperCase())}
+            {link.split('/').pop().replace('-', ' ').replace(/^\w/, (c) => c.toUpperCase())}
           </MotionLink>
         ))}
       </nav>
 
-      {/* Attendance Summary Pie Chart and Percentage Summary */}
-      <div className="flex flex-col md:flex-row justify-center items-center mt-6 md:mt-8 space-y-6 md:space-y-0 md:space-x-8">
-        {/* Pie Chart */}
-        <div className="w-full md:w-1/2 lg:w-1/3 xl:w-1/4">
-          <h2 className="text-lg md:text-xl font-semibold text-center mb-4">Current Month Attendance Summary</h2>
-          <Doughnut data={attendanceData} />
-        </div>
+      {loading ? (
+        <p className="text-gray-600 text-center">Loading attendance summary...</p>
+      ) : (
+        <div className="flex flex-col md:flex-row justify-center items-center mt-6 md:mt-8 space-y-6 md:space-y-0 md:space-x-8">
+          <div className="w-full md:w-1/2 lg:w-1/3 xl:w-1/4">
+            <h2 className="text-lg md:text-xl font-semibold text-center mb-4">Current Month Attendance Summary</h2>
+            <Doughnut data={attendanceData} />
+          </div>
 
-        {/* Percentage Summary */}
-        <div className="text-center md:text-left text-lg font-medium space-y-2 md:space-y-3">
-          <p className="underline">
-            <span className="font-semibold text-purple-600">Total 100%:</span>
-          </p>
-          <p>
-            <span className="font-semibold text-green-600">Present:</span> {presentPercentage}%
-          </p>
-          <p>
-            <span className="font-semibold text-red-600">Absent:</span> {absentPercentage}%
-          </p>
-          <p>
-            <span className="font-semibold text-yellow-600">Leave:</span> {leavePercentage}%
-          </p>
+          <div className="text-center md:text-left text-lg font-medium space-y-2 md:space-y-3">
+            <p className="underline">
+              <span className="font-semibold text-purple-600">Total 100%:</span>
+            </p>
+            <p>
+              <span className="font-semibold text-green-600">Present:</span> {summary.presentPercentage}%
+            </p>
+            <p>
+              <span className="font-semibold text-red-600">Absent:</span> {summary.absentPercentage}%
+            </p>
+            <p>
+              <span className="font-semibold text-yellow-600">Leave:</span> {summary.leavePercentage}%
+            </p>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

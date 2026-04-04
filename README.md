@@ -25,6 +25,7 @@ ClassSync offers tools that provide a complete overview of academic schedules, t
 - Tailwind css
 - React-Route (For route)
 - Recharts and Chart.js for data visualization
+- Supabase (Auth, Postgres, Storage)
 
 ## ⚙️ Setup and Installation
 Follow these steps to set up the project locally:
@@ -38,7 +39,24 @@ cd classsync
 ```
 npm install
 ```
-3. Start the Development Server
+3. Configure Supabase Environment
+```bash
+cp .env.example .env.local
+```
+Fill in these values in `.env.local`:
+- REACT_APP_SUPABASE_URL
+- REACT_APP_SUPABASE_ANON_KEY
+
+4. Run Supabase Migration
+Use SQL file:
+- `supabase/migrations/20260404_mvp_schema.sql`
+
+You can run it from Supabase SQL editor or with psql:
+```powershell
+$env:PGPASSWORD='YOUR_DB_PASSWORD'; $env:PGSSLMODE='require'; psql -h db.<project-id>.supabase.co -p 5432 -U postgres -d postgres -v ON_ERROR_STOP=1 -f "supabase/migrations/20260404_mvp_schema.sql"
+```
+
+5. Start the Development Server
 ```
 npm start
 ```

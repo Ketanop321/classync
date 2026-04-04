@@ -9,16 +9,20 @@ import {
   faCalendarAlt,
   faBookOpen,
   faUser,
+  faBell,
+  faIdCard,
   faBars,
   faTimes
 } from '@fortawesome/free-solid-svg-icons';
 import Logo from '../assets/logo/logo.png';
 import Avatar from 'react-avatar';
-import { mockCurrentUser } from '../mocks/userData';
+import { useAuth } from '../context/authContext/authContext';
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const currentUser = mockCurrentUser;
+  const { profile, user, signOut } = useAuth();
+  const displayName = profile?.full_name || user?.email?.split('@')[0] || 'Student';
+  const displayEmail = profile?.email || user?.email || 'Not available';
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -114,6 +118,28 @@ const Sidebar = () => {
                 <span>User Profile</span>
               </NavLink>
             </li>
+            <li className="mb-4">
+              <NavLink
+                to="/student-details"
+                className={({ isActive }) =>
+                  `flex items-center px-4 ${isActive ? 'text-blue-500' : 'text-gray-600'}`
+                }
+              >
+                <FontAwesomeIcon icon={faIdCard} className="mr-2" />
+                <span>Student Details</span>
+              </NavLink>
+            </li>
+            <li className="mb-4">
+              <NavLink
+                to="/notices"
+                className={({ isActive }) =>
+                  `flex items-center px-4 ${isActive ? 'text-blue-500' : 'text-gray-600'}`
+                }
+              >
+                <FontAwesomeIcon icon={faBell} className="mr-2" />
+                <span>Notices</span>
+              </NavLink>
+            </li>
           </ul>
         </nav>
 
@@ -122,14 +148,21 @@ const Sidebar = () => {
           {/* 🔹 Avatar for user profile picture */}
           <div className="w-12 h-12 p-1 flex items-center justify-center">
             <Avatar
-              name={currentUser?.name || "Guest"} // 🔹 Display user's name if available, otherwise "Guest"
+              name={displayName}
               size="40"
               round={true}
             />
           </div>
           <div className="ml-2 max-w-[200px]">
-            <p className="font-bold">{currentUser?.name || "Guest"}</p> {/* 🔹 Display user's name or "Guest" */}
-            <p className="text-gray-600 text-sm">{currentUser?.email || "Not logged in"}</p> {/* 🔹 Display user's email or "Not logged in" */}
+            <p className="font-bold">{displayName}</p>
+            <p className="text-gray-600 text-sm">{displayEmail}</p>
+            <button
+              type="button"
+              onClick={signOut}
+              className="mt-2 text-xs text-red-600 hover:underline"
+            >
+              Sign out
+            </button>
           </div>
         </div>
       </div>

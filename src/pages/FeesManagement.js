@@ -1,217 +1,329 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { saveAs } from 'file-saver';
 import { FaCreditCard, FaUniversity, FaMobileAlt, FaSearch } from 'react-icons/fa';
+import { fetchTableRows, insertRow, upsertRow } from '../services/supabaseMvpApi';
 
 const FeesManagement = () => {
-    const [selectedSemester, setSelectedSemester] = useState("1st");
-    const [isLoading, setIsLoading] = useState(false);
-    const [notification, setNotification] = useState("");
-    const [supportTicket, setSupportTicket] = useState("");
-    const [filterText, setFilterText] = useState("");
-    const [showHistory, setShowHistory] = useState(false);
+  const [selectedSemester, setSelectedSemester] = useState('1st');
+  const [isLoading, setIsLoading] = useState(false);
+  const [notification, setNotification] = useState('');
+  const [supportTicket, setSupportTicket] = useState('');
+  const [filterText, setFilterText] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('card');
+  const [error, setError] = useState('');
 
-    const feesData = {
-        "1st": { tuition: 15000, hostel: 5000, library: 1000, lab: 2000, misc: 500, deadline: "31 March 2024", pending: 2000, fine: 200 },
-        "2nd": { tuition: 15000, hostel: 5000, library: 1000, lab: 2000, misc: 700, deadline: "30 June 2024", pending: 1500, fine: 100 },
-        "3rd": { tuition: 16000, hostel: 5500, library: 1200, lab: 2200, misc: 600, deadline: "30 September 2024", pending: 2500, fine: 150 },
-        "4th": { tuition: 16000, hostel: 5500, library: 1200, lab: 2200, misc: 800, deadline: "31 December 2024", pending: 1000, fine: 0 },
-    };
+  const [invoices, setInvoices] = useState([]);
+  const [payments, setPayments] = useState([]);
 
-    const previousPayments = [
-        { semester: "1st", amount: 20000, date: "20 March 2023" },
-        { semester: "2nd", amount: 21000, date: "25 June 2023" },
-        { semester: "3rd", amount: 21500, date: "15 September 2023" },
-    ];
+  const [invoiceForm, setInvoiceForm] = useState({
+    tuition: 0,
+    hostel: 0,
+    library: 0,
+    lab: 0,
+    misc: 0,
+    pending: 0,
+    fine: 0,
+    deadline: '',
+  });
 
-    const handleSemesterChange = (e) => setSelectedSemester(e.target.value);
-    const semesterFees = feesData[selectedSemester];
+  const loadData = async () => {
+    setError('');
+    try {
+      const [invoiceRows, paymentRows] = await Promise.all([
+        fetchTableRows('fee_invoices', { orderBy: 'semester', orderConfig: { ascending: true } }),
+        fetchTableRows('fee_payments', { orderBy: 'paid_at', orderConfig: { ascending: false } }),
+      ]);
+      setInvoices(invoiceRows || []);
+      setPayments(paymentRows || []);
+    } catch (err) {
+      setError(err.message || 'Failed to load fee data.');
+    }
+  };
 
-    const handlePayment = () => {
-        setIsLoading(true);
-        setTimeout(() => {
-            setIsLoading(false);
-            setNotification("Payment Successful!");
-            const blob = new Blob([`Receipt\nSemester: ${selectedSemester}\nAmount: ₹${semesterFees.pending + semesterFees.fine}`], { type: 'text/plain;charset=utf-8' });
-            saveAs(blob, `Payment_Receipt_${selectedSemester}.txt`);
-        }, 2000);
-    };
+  useEffect(() => {
+    loadData();
+  }, []);
 
-    const handleSupportTicket = () => {
-        alert("Support ticket submitted successfully!");
-    };
+  const semesterInvoice = useMemo(() => {
+    return invoices.find((invoice) => invoice.semester === selectedSemester) || null;
+  }, [invoices, selectedSemester]);
 
-    const filteredPayments = previousPayments.filter(payment =>
-        payment.semester.toLowerCase().includes(filterText.toLowerCase())
-    );
+  useEffect(() => {
+    if (!semesterInvoice) {
+      setInvoiceForm({ tuition: 0, hostel: 0, library: 0, lab: 0, misc: 0, pending: 0, fine: 0, deadline: '' });
+      return;
+    }
 
-    return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="flex flex-col lg:flex-row p-6 lg:p-8 bg-gradient-to-r from-indigo-500 to-blue-600 min-h-screen text-white"
-        >
-            {/* Main Content */}
-            <div className="w-full lg:w-2/3 pr-0 lg:pr-8 mb-6 lg:mb-0">
-                <h1 className="text-3xl lg:text-4xl font-bold mb-6 text-center">Fees Management</h1>
+    setInvoiceForm({
+      tuition: Number(semesterInvoice.tuition || 0),
+      hostel: Number(semesterInvoice.hostel || 0),
+      library: Number(semesterInvoice.library || 0),
+      lab: Number(semesterInvoice.lab || 0),
+      misc: Number(semesterInvoice.misc || 0),
+      pending: Number(semesterInvoice.pending || 0),
+      fine: Number(semesterInvoice.fine || 0),
+      deadline: semesterInvoice.deadline || '',
+    });
+  }, [semesterInvoice]);
 
-                {/* Semester Filter and Search */}
-                <div className="mb-6 flex flex-col lg:flex-row justify-between items-center">
-                    <div className="w-full lg:w-auto mb-4 lg:mb-0">
-                        <label className="block text-lg font-medium mb-2">Select Semester:</label>
-                        <select 
-                            onChange={handleSemesterChange} 
-                            value={selectedSemester} 
-                            className="w-full p-3 rounded-lg shadow-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        >
-                            <option value="1st">1st Semester</option>
-                            <option value="2nd">2nd Semester</option>
-                            <option value="3rd">3rd Semester</option>
-                            <option value="4th">4th Semester</option>
-                        </select>
-                    </div>
-                    <div className="mt-4 lg:mt-0 lg:ml-4 flex items-center">
-                        <FaSearch className="text-white mr-2"/>
-                        <input 
-                            type="text" 
-                            placeholder="Search by semester..." 
-                            value={filterText} 
-                            onChange={(e) => setFilterText(e.target.value)}
-                            className="p-2 rounded-lg text-gray-800"
-                        />
-                    </div>
-                </div>
+  const handleSemesterChange = (e) => setSelectedSemester(e.target.value);
 
-                {/* Fees Details for Selected Semester */}
-                <motion.div
-                    initial={{ y: 50, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                    className="bg-white text-gray-800 p-6 rounded-lg shadow-lg mb-6 border"
-                >
-                    <h2 className="text-2xl lg:text-3xl font-semibold mb-4">Fee Structure for {selectedSemester} Semester</h2>
-                    <ul className="space-y-4">
-                        <li className="flex justify-between">
-                            <span className="font-medium">Tuition Fee:</span>
-                            <span>₹{semesterFees.tuition}</span>
-                        </li>
-                        <li className="flex justify-between">
-                            <span className="font-medium">Hostel Fee:</span>
-                            <span>₹{semesterFees.hostel}</span>
-                        </li>
-                        <li className="flex justify-between">
-                            <span className="font-medium">Library Fee:</span>
-                            <span>₹{semesterFees.library}</span>
-                        </li>
-                        <li className="flex justify-between">
-                            <span className="font-medium">Lab Fee:</span>
-                            <span>₹{semesterFees.lab}</span>
-                        </li>
-                        <li className="flex justify-between">
-                            <span className="font-medium">Miscellaneous Fee:</span>
-                            <span>₹{semesterFees.misc}</span>
-                        </li>
-                    </ul>
-                    <div className="mt-4 flex justify-between text-lg font-semibold">
-                        <span>Total Fee:</span>
-                        <span>₹{semesterFees.tuition + semesterFees.hostel + semesterFees.library + semesterFees.lab + semesterFees.misc}</span>
-                    </div>
-                    <div className="mt-2 text-red-500">Pending Due: ₹{semesterFees.pending}</div>
-                    <div className="mt-1 text-red-500">Fine/Penalty: ₹{semesterFees.fine}</div>
-                    <div className="mt-1 text-gray-600">Payment Deadline: {semesterFees.deadline}</div>
-                </motion.div>
+  const handleInvoiceField = (event) => {
+    const { name, value } = event.target;
+    setInvoiceForm((prev) => ({ ...prev, [name]: name === 'deadline' ? value : Number(value || 0) }));
+  };
 
-                {/* Payment Form with Online Payment Options */}
-                <motion.div
-                    initial={{ y: 50, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ duration: 0.5, delay: 0.4 }}
-                    className="bg-white text-gray-800 p-6 rounded-lg shadow-lg border"
-                >
-                    <h2 className="text-2xl lg:text-3xl font-semibold mb-4">Make a Payment</h2>
-                    <form className="space-y-6">
-                        <div className="flex justify-between items-center">
-                            <span className="font-medium">Amount to Pay:</span>
-                            <span>₹{semesterFees.pending + semesterFees.fine}</span>
-                        </div>
+  const handleInvoiceSave = async () => {
+    setError('');
+    try {
+      await upsertRow(
+        'fee_invoices',
+        {
+          semester: selectedSemester,
+          ...invoiceForm,
+        },
+        'user_id,semester'
+      );
 
-                        <div className="flex justify-between flex-wrap mt-4">
-                            <button className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full shadow-lg hover:from-blue-600 mx-1 flex items-center space-x-2">
-                                <FaCreditCard />
-                                <span>Credit/Debit Card</span>
-                            </button>
-                            <button className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-full shadow-lg hover:from-green-600 mx-1 flex items-center space-x-2">
-                                <FaMobileAlt />
-                                <span>UPI</span>
-                            </button>
-                            <button className="flex-1 bg-gradient-to-r from-purple-500 to-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:from-blue-600 mx-1 flex items-center space-x-2">
-                                <FaUniversity />
-                                <span>Net Banking</span>
-                            </button>
-                        </div>
+      setNotification('Invoice saved successfully.');
+      await loadData();
+    } catch (err) {
+      setError(err.message || 'Could not save invoice.');
+    }
+  };
 
-                        <button 
-                            type="button" 
-                            onClick={handlePayment} 
-                            disabled={isLoading} 
-                            className={`w-full bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'}`}
-                        >
-                            {isLoading ? 'Processing...' : 'Pay Now'}
-                        </button>
-                    </form>
-                    {notification && <div className="mt-4 text-green-600">{notification}</div>}
-                </motion.div>
-            </div>
+  const handlePayment = async () => {
+    setIsLoading(true);
+    setError('');
 
-            {/* Payment History */}
-            <div className="w-full lg:w-1/3 lg:pl-8">
-                <h2 className="text-2xl lg:text-3xl font-semibold mb-4">Payment History</h2>
-                <div className="bg-white text-gray-800 p-6 rounded-lg shadow-lg border">
-                    <h3 className="font-medium mb-4">Previous Payments</h3>
-                    <input 
-                        type="text" 
-                        placeholder="Search payments..." 
-                        value={filterText} 
-                        onChange={(e) => setFilterText(e.target.value)}
-                        className="p-2 rounded-lg text-gray-800 mb-4 w-full"
-                    />
-                    <ul className="space-y-4">
-                        {filteredPayments.length > 0 ? (
-                            filteredPayments.map((payment, index) => (
-                                <li key={index} className="flex justify-between">
-                                    <span>{payment.semester}</span>
-                                    <span>₹{payment.amount} ({payment.date})</span>
-                                </li>
-                            ))
-                        ) : (
-                            <li>No payments found.</li>
-                        )}
-                    </ul>
-                </div>
-            </div>
+    try {
+      const payableAmount = Number(invoiceForm.pending || 0) + Number(invoiceForm.fine || 0);
 
-            {/* Support Ticket */}
-            <div className="w-full lg:w-1/3 lg:pl-8 mt-6 lg:mt-0">
-                <h2 className="text-2xl lg:text-3xl font-semibold mb-4">Support</h2>
-                <div className="bg-white text-gray-800 p-6 rounded-lg shadow-lg border">
-                    <h3 className="font-medium mb-4">Submit a Support Ticket</h3>
-                    <textarea 
-                        placeholder="Describe your issue..." 
-                        value={supportTicket} 
-                        onChange={(e) => setSupportTicket(e.target.value)} 
-                        className="p-2 rounded-lg text-gray-800 mb-4 w-full h-24"
-                    />
-                    <button 
-                        onClick={handleSupportTicket} 
-                        className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-600 w-full"
-                    >
-                        Submit Ticket
-                    </button>
-                </div>
-            </div>
+      if (payableAmount <= 0) {
+        setNotification('No pending amount for selected semester.');
+        return;
+      }
+
+      await insertRow('fee_payments', {
+        semester: selectedSemester,
+        amount: payableAmount,
+        method: paymentMethod,
+        status: 'successful',
+        receipt_note: `Paid via ${paymentMethod}`,
+      });
+
+      await upsertRow(
+        'fee_invoices',
+        {
+          semester: selectedSemester,
+          ...invoiceForm,
+          pending: 0,
+          fine: 0,
+        },
+        'user_id,semester'
+      );
+
+      const blob = new Blob(
+        [`Receipt\nSemester: ${selectedSemester}\nAmount: ₹${payableAmount}\nMethod: ${paymentMethod}`],
+        { type: 'text/plain;charset=utf-8' }
+      );
+      saveAs(blob, `Payment_Receipt_${selectedSemester}.txt`);
+
+      setNotification('Payment Successful!');
+      await loadData();
+    } catch (err) {
+      setError(err.message || 'Could not process payment.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSupportTicket = async () => {
+    if (!supportTicket.trim()) {
+      return;
+    }
+
+    setError('');
+    try {
+      await insertRow('support_tickets', { message: supportTicket.trim(), status: 'open' });
+      setSupportTicket('');
+      setNotification('Support ticket submitted successfully.');
+    } catch (err) {
+      setError(err.message || 'Could not submit support ticket.');
+    }
+  };
+
+  const filteredPayments = payments.filter((payment) =>
+    payment.semester.toLowerCase().includes(filterText.toLowerCase())
+  );
+
+  const totalFee =
+    Number(invoiceForm.tuition) +
+    Number(invoiceForm.hostel) +
+    Number(invoiceForm.library) +
+    Number(invoiceForm.lab) +
+    Number(invoiceForm.misc);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="flex flex-col lg:flex-row p-6 lg:p-8 bg-gradient-to-r from-indigo-500 to-blue-600 min-h-screen text-white"
+    >
+      <div className="w-full lg:w-2/3 pr-0 lg:pr-8 mb-6 lg:mb-0">
+        <h1 className="text-3xl lg:text-4xl font-bold mb-6 text-center">Fees Management</h1>
+        {error && <p className="text-red-200 mb-3">{error}</p>}
+        {notification && <p className="text-green-200 mb-3">{notification}</p>}
+
+        <div className="mb-6 flex flex-col lg:flex-row justify-between items-center">
+          <div className="w-full lg:w-auto mb-4 lg:mb-0">
+            <label className="block text-lg font-medium mb-2">Select Semester:</label>
+            <select
+              onChange={handleSemesterChange}
+              value={selectedSemester}
+              className="w-full p-3 rounded-lg shadow-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
+              <option value="1st">1st Semester</option>
+              <option value="2nd">2nd Semester</option>
+              <option value="3rd">3rd Semester</option>
+              <option value="4th">4th Semester</option>
+            </select>
+          </div>
+          <div className="mt-4 lg:mt-0 lg:ml-4 flex items-center">
+            <FaSearch className="text-white mr-2" />
+            <input
+              type="text"
+              placeholder="Search by semester..."
+              value={filterText}
+              onChange={(e) => setFilterText(e.target.value)}
+              className="p-2 rounded-lg text-gray-800"
+            />
+          </div>
+        </div>
+
+        <motion.div className="bg-white text-gray-800 p-6 rounded-lg shadow-lg mb-6 border">
+          <h2 className="text-2xl lg:text-3xl font-semibold mb-4">Fee Structure for {selectedSemester} Semester</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {['tuition', 'hostel', 'library', 'lab', 'misc', 'pending', 'fine'].map((field) => (
+              <label key={field} className="flex flex-col text-sm">
+                <span className="font-semibold capitalize">{field}</span>
+                <input
+                  type="number"
+                  name={field}
+                  value={invoiceForm[field]}
+                  onChange={handleInvoiceField}
+                  className="border p-2 rounded"
+                />
+              </label>
+            ))}
+            <label className="flex flex-col text-sm">
+              <span className="font-semibold">Deadline</span>
+              <input
+                type="date"
+                name="deadline"
+                value={invoiceForm.deadline || ''}
+                onChange={handleInvoiceField}
+                className="border p-2 rounded"
+              />
+            </label>
+          </div>
+          <div className="mt-4 flex justify-between text-lg font-semibold">
+            <span>Total Fee:</span>
+            <span>₹{totalFee}</span>
+          </div>
+          <button
+            onClick={handleInvoiceSave}
+            className="mt-4 bg-slate-800 text-white px-4 py-2 rounded hover:bg-slate-700"
+          >
+            Save Invoice
+          </button>
         </motion.div>
-    );
+
+        <motion.div className="bg-white text-gray-800 p-6 rounded-lg shadow-lg border">
+          <h2 className="text-2xl lg:text-3xl font-semibold mb-4">Make a Payment</h2>
+          <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+            <div className="flex justify-between items-center">
+              <span className="font-medium">Amount to Pay:</span>
+              <span>₹{Number(invoiceForm.pending || 0) + Number(invoiceForm.fine || 0)}</span>
+            </div>
+
+            <div className="flex justify-between flex-wrap mt-4 gap-2">
+              <button
+                type="button"
+                onClick={() => setPaymentMethod('card')}
+                className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full shadow-lg hover:from-blue-600 mx-1 flex items-center justify-center space-x-2"
+              >
+                <FaCreditCard />
+                <span>Card</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaymentMethod('upi')}
+                className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-full shadow-lg hover:from-green-600 mx-1 flex items-center justify-center space-x-2"
+              >
+                <FaMobileAlt />
+                <span>UPI</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaymentMethod('net_banking')}
+                className="flex-1 bg-gradient-to-r from-purple-500 to-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:from-blue-600 mx-1 flex items-center justify-center space-x-2"
+              >
+                <FaUniversity />
+                <span>Net Banking</span>
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={handlePayment}
+              disabled={isLoading}
+              className={`w-full bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'}`}
+            >
+              {isLoading ? 'Processing...' : `Pay Now (${paymentMethod})`}
+            </button>
+          </form>
+        </motion.div>
+      </div>
+
+      <div className="w-full lg:w-1/3 lg:pl-8">
+        <h2 className="text-2xl lg:text-3xl font-semibold mb-4">Payment History</h2>
+        <div className="bg-white text-gray-800 p-6 rounded-lg shadow-lg border">
+          <h3 className="font-medium mb-4">Previous Payments</h3>
+          <ul className="space-y-4">
+            {filteredPayments.length > 0 ? (
+              filteredPayments.map((payment) => (
+                <li key={payment.id} className="flex justify-between">
+                  <span>{payment.semester}</span>
+                  <span>₹{payment.amount} ({new Date(payment.paid_at).toLocaleDateString()})</span>
+                </li>
+              ))
+            ) : (
+              <li>No payments found.</li>
+            )}
+          </ul>
+        </div>
+
+        <div className="bg-white text-gray-800 p-6 rounded-lg shadow-lg border mt-6">
+          <h3 className="font-medium mb-4">Submit a Support Ticket</h3>
+          <textarea
+            placeholder="Describe your issue..."
+            value={supportTicket}
+            onChange={(e) => setSupportTicket(e.target.value)}
+            className="p-2 rounded-lg text-gray-800 mb-4 w-full h-24 border"
+          />
+          <button
+            onClick={handleSupportTicket}
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-600 w-full"
+          >
+            Submit Ticket
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
 };
 
 export default FeesManagement;

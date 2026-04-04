@@ -140,7 +140,7 @@ body {
 }
 
 .auth-toggle-button.is-active {
-  color: #07111f;
+  color: #020b18;
   background: linear-gradient(120deg, var(--auth-accent) 0%, #71f4ff 100%);
   box-shadow: 0 8px 20px rgba(34, 211, 238, 0.35);
 }

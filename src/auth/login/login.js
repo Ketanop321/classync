@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useAuth } from '../../context/authContext/authContext';
 
 const Login = () => {
@@ -38,77 +39,116 @@ const Login = () => {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-slate-100 p-4">
-      <div className="w-full max-w-md bg-white border rounded-xl shadow-lg p-6">
-        <h1 className="text-2xl font-bold text-slate-800 text-center mb-1">ClassSync</h1>
-        <p className="text-center text-slate-500 mb-6">Hosted with Supabase</p>
+    <main className="auth-shell">
+      <div className="auth-aurora auth-aurora-left" aria-hidden="true" />
+      <div className="auth-aurora auth-aurora-right" aria-hidden="true" />
+      <motion.div
+        initial={{ opacity: 0, y: 26, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.72, ease: 'easeOut' }}
+        className="auth-panel"
+      >
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.7, delay: 0.2 }}
+          className="auth-mesh"
+          aria-hidden="true"
+        />
+        <motion.h1
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.22 }}
+          className="auth-title"
+        >
+          ClassSync
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.3 }}
+          className="auth-subtitle"
+        >
+          Academy Portal · Supabase Powered
+        </motion.p>
 
-        <div className="flex mb-4 bg-slate-100 rounded-lg p-1">
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.38 }}
+          className="auth-toggle"
+        >
           <button
             type="button"
             onClick={() => setMode('signin')}
-            className={`flex-1 py-2 rounded-md ${mode === 'signin' ? 'bg-white shadow text-slate-900' : 'text-slate-500'}`}
+            className={`auth-toggle-button ${mode === 'signin' ? 'is-active' : ''}`}
           >
             Sign In
           </button>
           <button
             type="button"
             onClick={() => setMode('signup')}
-            className={`flex-1 py-2 rounded-md ${mode === 'signup' ? 'bg-white shadow text-slate-900' : 'text-slate-500'}`}
+            className={`auth-toggle-button ${mode === 'signup' ? 'is-active' : ''}`}
           >
             Sign Up
           </button>
-        </div>
+        </motion.div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <motion.form
+          onSubmit={handleSubmit}
+          className="auth-form"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.45 }}
+        >
           {mode === 'signup' && (
             <div>
-              <label className="block text-sm font-medium text-slate-700">Full Name</label>
+              <label className="auth-label">Full Name</label>
               <input
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
-                className="w-full mt-1 px-3 py-2 border rounded-lg"
+                className="auth-input"
               />
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-slate-700">Email</label>
+            <label className="auth-label">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full mt-1 px-3 py-2 border rounded-lg"
+              className="auth-input"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700">Password</label>
+            <label className="auth-label">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               minLength={6}
               required
-              className="w-full mt-1 px-3 py-2 border rounded-lg"
+              className="auth-input"
             />
           </div>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          {message && <p className="text-sm text-green-600">{message}</p>}
+          {error && <p className="auth-alert auth-alert-error">{error}</p>}
+          {message && <p className="auth-alert auth-alert-success">{message}</p>}
 
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
+            className="auth-submit"
           >
             {submitting ? 'Please wait...' : mode === 'signup' ? 'Create Account' : 'Sign In'}
           </button>
-        </form>
-      </div>
+        </motion.form>
+      </motion.div>
     </main>
   );
 };

@@ -48,8 +48,8 @@ const NoticePage = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Announcements</h1>
+    <div className="max-w-4xl mx-auto p-4 sm:p-6">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6">Announcements</h1>
       {error && <p className="text-red-600 mb-4">{error}</p>}
 
       <form onSubmit={handleSubmit} className="mb-6 bg-white border rounded-lg shadow p-4 space-y-3">

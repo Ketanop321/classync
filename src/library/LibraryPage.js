@@ -121,7 +121,7 @@ const LibraryPage = () => {
         <input name="download_url" value={bookForm.download_url} onChange={handleBookFormChange} placeholder="Download URL" className="border p-2 rounded" />
         <input type="number" name="available_copies" value={bookForm.available_copies} onChange={handleBookFormChange} className="border p-2 rounded" />
         <input name="description" value={bookForm.description} onChange={handleBookFormChange} placeholder="Description" className="border p-2 rounded md:col-span-2" />
-        <button type="submit" className="bg-pink-500 text-white rounded p-2">Add Book</button>
+        <button type="submit" className="bg-pink-500 text-white rounded p-2 md:col-span-1">Add Book</button>
       </form>
 
       <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-4 rounded-lg shadow-md mb-6">
@@ -146,7 +146,7 @@ const LibraryPage = () => {
       {loading ? (
         <p className="text-gray-700">Loading library...</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mt-6">
           {filteredBooks.map((book) => (
             <div key={book.id} className="bg-white rounded-lg shadow-lg p-4 flex flex-col items-center">
               <img
@@ -184,8 +184,8 @@ const LibraryPage = () => {
               </button>
             </div>
           ))}
-          {filteredBooks.length === 0 && <p className="text-gray-700">No books found.</p>}
-        </div>
+            {filteredBooks.length === 0 && <p className="text-gray-700 col-span-full">No books found.</p>}
+          </div>
       )}
 
       <div className="mt-10 space-y-8">

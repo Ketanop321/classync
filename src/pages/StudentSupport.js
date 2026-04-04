@@ -66,12 +66,12 @@ const StudentSupport = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">Student Support</h1>
+    <div className="p-4 sm:p-6 bg-gray-100 min-h-screen">
+      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-gray-800 mb-8">Student Support</h1>
       {error && <p className="text-red-600 mb-4">{error}</p>}
 
       <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
-        <h2 className="text-3xl font-bold mb-4">Support Ticket</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold mb-4">Support Ticket</h2>
         <form onSubmit={handleSubmitRequest}>
           <textarea
             className="w-full p-3 border rounded-lg shadow-sm mt-2"
@@ -104,7 +104,7 @@ const StudentSupport = () => {
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
-        <h2 className="text-3xl font-bold mb-4">FAQs</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold mb-4">FAQs</h2>
         <input
           type="text"
           className="w-full p-3 border rounded-lg shadow-sm mb-4"
@@ -127,7 +127,7 @@ const StudentSupport = () => {
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
-        <h2 className="text-3xl font-bold mb-4">Feedback</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold mb-4">Feedback</h2>
         <form onSubmit={handleSubmitFeedback}>
           <textarea
             className="w-full p-3 border rounded-lg shadow-sm mt-2"
@@ -144,7 +144,7 @@ const StudentSupport = () => {
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-lg">
-        <h2 className="text-3xl font-bold mb-4">Announcements</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold mb-4">Announcements</h2>
         {notices.length === 0 ? (
           <p className="text-gray-600">No announcements available.</p>
         ) : (

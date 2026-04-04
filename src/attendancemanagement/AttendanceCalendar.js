@@ -123,8 +123,8 @@ const AcademicCalendar = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-4xl font-bold text-center mb-8">Academic Calendar</h1>
+    <div className="p-4 sm:p-6 bg-gray-100 min-h-screen">
+      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8">Academic Calendar</h1>
 
       {error && <p className="text-red-600 mb-4">{error}</p>}
 
@@ -183,7 +183,7 @@ const AcademicCalendar = () => {
       </div>
 
       <div className="text-center mb-6">
-        <label className="mr-3 font-medium text-lg">Filter by Semester:</label>
+        <label className="mr-3 font-medium text-base sm:text-lg">Filter by Semester:</label>
         <select
           className="p-2 rounded border border-gray-300"
           value={selectedSemester}

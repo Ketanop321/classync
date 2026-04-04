@@ -145,8 +145,7 @@ const LibraryPage = () => {
 
       {loading ? (
         <p className="text-gray-700">Loading library...</p>
-      ) : (
-        {filteredBooks.length === 0 ? (
+      ) : filteredBooks.length === 0 ? (
           <p className="text-gray-700 mt-6">No books found.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
@@ -188,8 +187,8 @@ const LibraryPage = () => {
               </div>
             ))}
           </div>
-        )}
-      )}
+        )
+      }
 
       <div className="mt-10 space-y-8">
         <div className="bg-white p-6 rounded-lg shadow-md">

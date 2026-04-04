@@ -107,8 +107,8 @@ const CourseRegistration = () => {
   };
 
   return (
-    <div className="p-6 bg-gradient-to-r from-blue-100 to-blue-200 min-h-screen">
-      <h1 className="text-4xl font-bold text-center mb-6">Course Registration</h1>
+    <div className="p-4 sm:p-6 bg-gradient-to-r from-blue-100 to-blue-200 min-h-screen">
+      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-6">Course Registration</h1>
       {error && <p className="text-red-600 mb-4">{error}</p>}
 
       <div className="flex flex-col md:flex-row items-center gap-4 mb-6">
@@ -187,7 +187,7 @@ const CourseRegistration = () => {
       {loading ? (
         <p className="text-gray-600">Loading courses...</p>
       ) : (
-        <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {filteredCourses.map((course) => {
             const selected = selectedCourses.some((item) => item.id === course.id);
             const alreadyRegistered = registeredCourseIds.has(course.id);

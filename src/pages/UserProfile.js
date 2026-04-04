@@ -92,11 +92,11 @@ const UserProfile = () => {
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
   return (
-    <div className="p-6 bg-gradient-to-r from-green-200 to-blue-200 min-h-screen">
-      <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center text-gray-800">User Profile</h1>
+    <div className="p-4 sm:p-6 bg-gradient-to-r from-green-200 to-blue-200 min-h-screen">
+      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-8 text-center text-gray-800">User Profile</h1>
 
-      <div className="bg-white p-8 rounded-2xl shadow-lg mb-8 transition-all duration-300 hover:shadow-xl">
-        <h2 className="text-3xl font-bold mb-6 text-gray-700">Personal Information</h2>
+      <div className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl shadow-lg mb-8 transition-all duration-300 hover:shadow-xl">
+        <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-700">Personal Information</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[
             ['full_name', 'Full Name'],
@@ -128,8 +128,8 @@ const UserProfile = () => {
         </button>
       </div>
 
-      <div className="bg-white p-8 rounded-2xl shadow-lg mb-8 transition-all duration-300 hover:shadow-xl">
-        <h2 className="text-3xl font-bold mb-6 text-gray-700">Skills</h2>
+      <div className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl shadow-lg mb-8 transition-all duration-300 hover:shadow-xl">
+        <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-700">Skills</h2>
         {skills.length === 0 ? (
           <p className="text-gray-600">No skills added yet.</p>
         ) : (
@@ -143,8 +143,8 @@ const UserProfile = () => {
         )}
       </div>
 
-      <div className="bg-white p-8 rounded-2xl shadow-lg mb-8 transition-all duration-300 hover:shadow-xl">
-        <h2 className="text-3xl font-bold mb-6 text-gray-700">Certificates</h2>
+      <div className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl shadow-lg mb-8 transition-all duration-300 hover:shadow-xl">
+        <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-700">Certificates</h2>
         {certificates.length === 0 ? (
           <p className="text-gray-600">No certificates added yet.</p>
         ) : (
@@ -156,8 +156,8 @@ const UserProfile = () => {
         )}
       </div>
 
-      <div className="bg-white p-8 rounded-2xl shadow-lg mb-8 transition-all duration-300 hover:shadow-xl">
-        <h2 className="text-3xl font-bold mb-6 text-gray-700">Parent Information</h2>
+      <div className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl shadow-lg mb-8 transition-all duration-300 hover:shadow-xl">
+        <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-700">Parent Information</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[
             ['parent_name', "Parent's Name"],

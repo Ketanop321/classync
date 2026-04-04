@@ -87,13 +87,13 @@ function ExamAssignmentSchedule() {
   };
 
   return (
-    <div>
+    <div className="p-4 sm:p-6">
       <Navbar selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
 
-      <h2 className="text-2xl font-semibold mb-4">Exam & Assignment Schedule</h2>
+      <h2 className="text-xl sm:text-2xl font-semibold mb-4">Exam & Assignment Schedule</h2>
       {error && <p className="text-red-600 mb-4">{error}</p>}
 
-      <div className="flex space-x-4 mb-8">
+      <div className="flex flex-wrap gap-2 sm:gap-4 mb-8">
         <button
           onClick={() => setSelectedTab('exams')}
           className={`py-2 px-4 ${selectedTab === 'exams' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
@@ -126,9 +126,9 @@ function ExamAssignmentSchedule() {
           ) : examEvents.length === 0 ? (
             <p className="text-gray-600">No upcoming exams found.</p>
           ) : (
-            <div className="bg-white p-4 shadow rounded">
+            <div className="bg-white p-4 shadow rounded overflow-x-auto">
               <h3 className="text-xl font-medium mb-2">Upcoming Exams</h3>
-              <table className="w-full text-left border-collapse">
+              <table className="min-w-full text-left border-collapse">
                 <thead>
                   <tr>
                     <th className="border-b p-2">Subject</th>
@@ -173,14 +173,18 @@ function ExamAssignmentSchedule() {
           ) : (
             <div className="bg-white p-4 shadow rounded">
               <h3 className="text-xl font-medium mb-2">Assignments</h3>
-              <ul>
+              <ul className="space-y-2">
                 {assignments.map((assignment) => (
-                  <li key={assignment.id} className="flex justify-between py-2 border-b">
-                    <span>{assignment.title}</span>
-                    <span>Due: {assignment.due_date}</span>
-                    <a href={assignment.details_url || '#'} className="text-blue-500 underline">
-                      Details
-                    </a>
+                  <li key={assignment.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 py-2 border-b">
+                    <span className="break-words">{assignment.title}</span>
+                    <span className="text-sm">Due: {assignment.due_date}</span>
+                    {assignment.details_url ? (
+                      <a href={assignment.details_url} className="text-blue-500 underline">
+                        Details
+                      </a>
+                    ) : (
+                      <span className="text-gray-500 text-sm">No details link</span>
+                    )}
                   </li>
                 ))}
               </ul>

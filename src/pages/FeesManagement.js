@@ -170,14 +170,14 @@ const FeesManagement = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="flex flex-col lg:flex-row p-6 lg:p-8 bg-gradient-to-r from-indigo-500 to-blue-600 min-h-screen text-white"
+      className="flex flex-col lg:flex-row p-4 sm:p-6 lg:p-8 bg-gradient-to-r from-indigo-500 to-blue-600 min-h-screen text-white"
     >
       <div className="w-full lg:w-2/3 pr-0 lg:pr-8 mb-6 lg:mb-0">
-        <h1 className="text-3xl lg:text-4xl font-bold mb-6 text-center">Fees Management</h1>
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 text-center">Fees Management</h1>
         {error && <p className="text-red-200 mb-3">{error}</p>}
         {notification && <p className="text-green-200 mb-3">{notification}</p>}
 
-        <div className="mb-6 flex flex-col lg:flex-row justify-between items-center">
+        <div className="mb-6 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
           <div className="w-full lg:w-auto mb-4 lg:mb-0">
             <label className="block text-lg font-medium mb-2">Select Semester:</label>
             <select
@@ -191,20 +191,20 @@ const FeesManagement = () => {
               <option value="4th">4th Semester</option>
             </select>
           </div>
-          <div className="mt-4 lg:mt-0 lg:ml-4 flex items-center">
-            <FaSearch className="text-white mr-2" />
+           <div className="mt-0 lg:ml-4 flex items-center w-full lg:w-auto">
+             <FaSearch className="text-white mr-2" />
             <input
               type="text"
               placeholder="Search by semester..."
               value={filterText}
               onChange={(e) => setFilterText(e.target.value)}
-              className="p-2 rounded-lg text-gray-800"
-            />
-          </div>
-        </div>
+               className="p-2 rounded-lg text-gray-800 w-full lg:w-auto"
+             />
+           </div>
+         </div>
 
         <motion.div className="bg-white text-gray-800 p-6 rounded-lg shadow-lg mb-6 border">
-          <h2 className="text-2xl lg:text-3xl font-semibold mb-4">Fee Structure for {selectedSemester} Semester</h2>
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold mb-4">Fee Structure for {selectedSemester} Semester</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {['tuition', 'hostel', 'library', 'lab', 'misc', 'pending', 'fine'].map((field) => (
               <label key={field} className="flex flex-col text-sm">
@@ -229,7 +229,7 @@ const FeesManagement = () => {
               />
             </label>
           </div>
-          <div className="mt-4 flex justify-between text-lg font-semibold">
+          <div className="mt-4 flex justify-between text-base sm:text-lg font-semibold gap-3">
             <span>Total Fee:</span>
             <span>₹{totalFee}</span>
           </div>
@@ -242,18 +242,18 @@ const FeesManagement = () => {
         </motion.div>
 
         <motion.div className="bg-white text-gray-800 p-6 rounded-lg shadow-lg border">
-          <h2 className="text-2xl lg:text-3xl font-semibold mb-4">Make a Payment</h2>
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold mb-4">Make a Payment</h2>
           <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-start sm:items-center gap-3">
               <span className="font-medium">Amount to Pay:</span>
-              <span>₹{Number(invoiceForm.pending || 0) + Number(invoiceForm.fine || 0)}</span>
+              <span className="text-right">₹{Number(invoiceForm.pending || 0) + Number(invoiceForm.fine || 0)}</span>
             </div>
 
-            <div className="flex justify-between flex-wrap mt-4 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 mt-4 gap-2">
               <button
                 type="button"
                 onClick={() => setPaymentMethod('card')}
-                className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full shadow-lg hover:from-blue-600 mx-1 flex items-center justify-center space-x-2"
+                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full shadow-lg hover:from-blue-600 flex items-center justify-center space-x-2"
               >
                 <FaCreditCard />
                 <span>Card</span>
@@ -261,7 +261,7 @@ const FeesManagement = () => {
               <button
                 type="button"
                 onClick={() => setPaymentMethod('upi')}
-                className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-full shadow-lg hover:from-green-600 mx-1 flex items-center justify-center space-x-2"
+                className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-full shadow-lg hover:from-green-600 flex items-center justify-center space-x-2"
               >
                 <FaMobileAlt />
                 <span>UPI</span>
@@ -269,7 +269,7 @@ const FeesManagement = () => {
               <button
                 type="button"
                 onClick={() => setPaymentMethod('net_banking')}
-                className="flex-1 bg-gradient-to-r from-purple-500 to-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:from-blue-600 mx-1 flex items-center justify-center space-x-2"
+                className="w-full bg-gradient-to-r from-purple-500 to-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:from-blue-600 flex items-center justify-center space-x-2"
               >
                 <FaUniversity />
                 <span>Net Banking</span>
@@ -289,15 +289,15 @@ const FeesManagement = () => {
       </div>
 
       <div className="w-full lg:w-1/3 lg:pl-8">
-        <h2 className="text-2xl lg:text-3xl font-semibold mb-4">Payment History</h2>
+        <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold mb-4">Payment History</h2>
         <div className="bg-white text-gray-800 p-6 rounded-lg shadow-lg border">
           <h3 className="font-medium mb-4">Previous Payments</h3>
           <ul className="space-y-4">
             {filteredPayments.length > 0 ? (
               filteredPayments.map((payment) => (
-                <li key={payment.id} className="flex justify-between">
+                <li key={payment.id} className="flex flex-col sm:flex-row sm:justify-between gap-1">
                   <span>{payment.semester}</span>
-                  <span>₹{payment.amount} ({new Date(payment.paid_at).toLocaleDateString()})</span>
+                  <span className="text-sm sm:text-base">₹{payment.amount} ({new Date(payment.paid_at).toLocaleDateString()})</span>
                 </li>
               ))
             ) : (

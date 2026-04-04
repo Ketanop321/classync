@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { fetchTableRows } from '../services/supabaseMvpApi';
 
 const SectionCard = ({ title, border, children }) => (
-  <div className={`bg-white p-6 rounded-lg shadow-lg transition-shadow duration-300 border-t-4 ${border}`}>
-    <h2 className="text-2xl font-semibold mb-4">{title}</h2>
+  <div className={`bg-white p-4 sm:p-6 rounded-lg shadow-lg transition-shadow duration-300 border-t-4 ${border}`}>
+    <h2 className="text-xl sm:text-2xl font-semibold mb-4">{title}</h2>
     {children}
   </div>
 );
@@ -52,7 +52,7 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="p-6 min-h-screen bg-gradient-to-r from-blue-50 to-indigo-100">
+       <div className="p-4 sm:p-6 min-h-screen bg-gradient-to-r from-blue-50 to-indigo-100">
         <p className="text-gray-600">Loading dashboard...</p>
       </div>
     );
@@ -60,15 +60,15 @@ const Dashboard = () => {
 
   if (error) {
     return (
-      <div className="p-6 min-h-screen bg-gradient-to-r from-blue-50 to-indigo-100">
+       <div className="p-4 sm:p-6 min-h-screen bg-gradient-to-r from-blue-50 to-indigo-100">
         <p className="text-red-600">{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="p-6 min-h-screen bg-gradient-to-r from-blue-50 to-indigo-100 relative">
-      <h1 className="text-3xl font-semibold mb-6 text-indigo-700 text-center sm:text-left">Dashboard Overview</h1>
+    <div className="p-4 sm:p-6 min-h-screen bg-gradient-to-r from-blue-50 to-indigo-100 relative">
+      <h1 className="text-2xl sm:text-3xl font-semibold mb-6 text-indigo-700 text-center sm:text-left">Dashboard Overview</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <SectionCard title="Student Announcements" border="border-indigo-500">
@@ -140,7 +140,7 @@ const Dashboard = () => {
       </div>
 
       <div className="mt-6 bg-white p-6 rounded-lg shadow-lg transition-shadow duration-300 border-t-4 border-purple-500">
-        <h2 className="text-2xl font-semibold text-purple-600 mb-4">Quick Links</h2>
+        <h2 className="text-xl sm:text-2xl font-semibold text-purple-600 mb-4">Quick Links</h2>
         <ul className="space-y-4 text-gray-700">
           <li className="flex items-center space-x-4 hover:bg-purple-50 rounded-md px-2 transition-colors duration-200">
             <span role="img" aria-label="link" className="text-green-500">📚</span>

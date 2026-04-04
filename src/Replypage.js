@@ -83,8 +83,8 @@ const ReplyPage = () => {
   };
 
   return (
-    <div className="container mx-auto mt-10 p-5 max-w-2xl border border-gray-300 rounded-md shadow-lg bg-white">
-      <h2 className="text-2xl font-bold mb-4">Reply to Show Cause Notice</h2>
+    <div className="container mx-auto mt-6 sm:mt-10 p-4 sm:p-5 max-w-2xl border border-gray-300 rounded-md shadow-lg bg-white">
+      <h2 className="text-xl sm:text-2xl font-bold mb-4">Reply to Show Cause Notice</h2>
       {error && <p className="text-red-600 mb-3">{error}</p>}
 
       {loading ? (

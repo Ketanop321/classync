@@ -12,9 +12,9 @@ const App = () => {
     <>
     {isAuthenticated && <NewsletterModal />}
     <Router>
-      <div className="flex">
+      <div className="flex overflow-x-hidden">
         {isAuthenticated && <Sidebar />}
-        <div className={`flex-grow p-4 ${isAuthenticated ? 'lg:ml-64' : ''}`}>
+        <div className={`flex-grow min-w-0 p-3 sm:p-4 md:p-6 ${isAuthenticated ? 'lg:ml-64' : ''}`}>
           <AppRoutes /> {/* Render routes from AppRoutes */}
         </div>
       </div>

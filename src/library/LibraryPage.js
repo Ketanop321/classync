@@ -121,7 +121,7 @@ const LibraryPage = () => {
         <input name="download_url" value={bookForm.download_url} onChange={handleBookFormChange} placeholder="Download URL" className="border p-2 rounded" />
         <input type="number" name="available_copies" value={bookForm.available_copies} onChange={handleBookFormChange} className="border p-2 rounded" />
         <input name="description" value={bookForm.description} onChange={handleBookFormChange} placeholder="Description" className="border p-2 rounded md:col-span-2" />
-        <button type="submit" className="bg-pink-500 text-white rounded p-2">Add Book</button>
+        <button type="submit" className="bg-pink-500 text-white rounded p-2 md:col-span-1">Add Book</button>
       </form>
 
       <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-4 rounded-lg shadow-md mb-6">
@@ -145,48 +145,50 @@ const LibraryPage = () => {
 
       {loading ? (
         <p className="text-gray-700">Loading library...</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
-          {filteredBooks.map((book) => (
-            <div key={book.id} className="bg-white rounded-lg shadow-lg p-4 flex flex-col items-center">
-              <img
-                src={book.cover_url || 'https://via.placeholder.com/160x220?text=Book'}
-                alt={book.title}
-                className="w-32 h-48 object-cover mb-4"
-              />
-              <h2 className="text-lg font-semibold text-center">{book.title}</h2>
-              <p className="text-sm text-gray-700">{book.author}</p>
-              <p className="text-xs text-gray-500">{book.genre || 'General'}</p>
-              {book.download_url ? (
-                <a href={book.download_url} target="_blank" rel="noreferrer" className="mt-4 px-4 py-2 bg-pink-400 text-white rounded hover:bg-pink-500">
-                  Download
-                </a>
-              ) : (
-                <button type="button" className="mt-4 px-4 py-2 bg-gray-300 text-white rounded cursor-not-allowed" disabled>
-                  No Download URL
+      ) : filteredBooks.length === 0 ? (
+          <p className="text-gray-700 mt-6">No books found.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
+            {filteredBooks.map((book) => (
+              <div key={book.id} className="bg-white rounded-lg shadow-lg p-4 flex flex-col items-center">
+                <img
+                  src={book.cover_url || 'https://via.placeholder.com/160x220?text=Book'}
+                  alt={book.title}
+                  className="w-32 h-48 object-cover mb-4"
+                />
+                <h2 className="text-lg font-semibold text-center">{book.title}</h2>
+                <p className="text-sm text-gray-700">{book.author}</p>
+                <p className="text-xs text-gray-500">{book.genre || 'General'}</p>
+                {book.download_url ? (
+                  <a href={book.download_url} target="_blank" rel="noreferrer" className="mt-4 px-4 py-2 bg-pink-400 text-white rounded hover:bg-pink-500">
+                    Download
+                  </a>
+                ) : (
+                  <button type="button" className="mt-4 px-4 py-2 bg-gray-300 text-white rounded cursor-not-allowed" disabled>
+                    No Download URL
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => reserveBook(book.id)}
+                  disabled={reservedBookIds.has(book.id)}
+                  className="mt-2 px-4 py-2 bg-pink-300 text-white rounded hover:bg-pink-400 disabled:opacity-60"
+                >
+                  {reservedBookIds.has(book.id) ? 'Reserved' : 'Reserve Book'}
                 </button>
-              )}
-              <button
-                type="button"
-                onClick={() => reserveBook(book.id)}
-                disabled={reservedBookIds.has(book.id)}
-                className="mt-2 px-4 py-2 bg-pink-300 text-white rounded hover:bg-pink-400 disabled:opacity-60"
-              >
-                {reservedBookIds.has(book.id) ? 'Reserved' : 'Reserve Book'}
-              </button>
-              <button
-                type="button"
-                onClick={() => addToReadLater(book.id)}
-                disabled={readLaterBookIds.has(book.id)}
-                className="mt-2 px-4 py-2 bg-blue-400 text-white rounded hover:bg-blue-500 disabled:opacity-60"
-              >
-                {readLaterBookIds.has(book.id) ? 'In Read Later' : 'Add to Read Later'}
-              </button>
-            </div>
-          ))}
-          {filteredBooks.length === 0 && <p className="text-gray-700">No books found.</p>}
-        </div>
-      )}
+                <button
+                  type="button"
+                  onClick={() => addToReadLater(book.id)}
+                  disabled={readLaterBookIds.has(book.id)}
+                  className="mt-2 px-4 py-2 bg-blue-400 text-white rounded hover:bg-blue-500 disabled:opacity-60"
+                >
+                  {readLaterBookIds.has(book.id) ? 'In Read Later' : 'Add to Read Later'}
+                </button>
+              </div>
+            ))}
+          </div>
+        )
+      }
 
       <div className="mt-10 space-y-8">
         <div className="bg-white p-6 rounded-lg shadow-md">

@@ -123,7 +123,7 @@ const AttendanceRecord = () => {
   };
 
   return (
-    <div className="bg-gray-50 p-6 rounded-lg shadow-md flex flex-col gap-6">
+    <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow-md flex flex-col gap-6">
       <div className="bg-white p-4 rounded-lg shadow-sm">
         <h2 className="text-xl font-semibold mb-4">Add Attendance Record</h2>
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-3">
@@ -170,7 +170,7 @@ const AttendanceRecord = () => {
         </form>
       </div>
 
-      <div className="flex flex-col md:flex-row md:justify-between md:space-x-4">
+      <div className="flex flex-col md:flex-row md:justify-between md:space-x-4 gap-4 md:gap-0">
         <div className="flex-1 mb-4">
           <h2 className="text-xl font-semibold mb-4">Attendance Record</h2>
           {error && <p className="text-red-600 mb-2">{error}</p>}
@@ -211,7 +211,7 @@ const AttendanceRecord = () => {
           ) : (
             <div className="space-y-2">
               {attendanceSummary.map(({ subject, totalClasses, present, absent, leave, late }) => (
-                <div key={subject} className="border p-4 rounded-lg flex justify-between items-center">
+                 <div key={subject} className="border p-4 rounded-lg flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
                   <h3 className="text-lg font-bold">{subject}</h3>
                   <p className="text-sm md:text-base font-semibold text-right">
                     Total: {totalClasses}, Present: {present}, Absent: {absent}, Leave: {leave}, Late: {late}
@@ -241,10 +241,10 @@ const AttendanceRecord = () => {
         </div>
       </div>
 
-      {attendanceDetailArray.length > 0 && (
-        <div className="w-full mt-4">
-          <h2 className="text-lg font-semibold mb-4">Detailed Attendance</h2>
-          <table className="min-w-full border border-gray-300">
+       {attendanceDetailArray.length > 0 && (
+         <div className="w-full mt-4 overflow-x-auto">
+           <h2 className="text-lg font-semibold mb-4">Detailed Attendance</h2>
+            <table className="min-w-full border border-gray-300">
             <thead>
               <tr className="bg-gray-100">
                 <th className="border border-gray-300 p-2">Date</th>

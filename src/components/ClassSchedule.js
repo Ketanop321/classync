@@ -144,7 +144,7 @@ function ClassSchedule() {
         </select>
       </div>
 
-      <div className="flex flex-wrap space-x-4 mb-6">
+      <div className="flex flex-wrap gap-2 sm:gap-4 mb-6">
         <button
           onClick={() => setView('weekly')}
           className={`px-4 py-2 rounded ${view === 'weekly' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}

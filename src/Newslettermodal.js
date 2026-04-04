@@ -4,19 +4,11 @@ function NewsletterModal() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
+    const timer = setTimeout(() => {
+      setIsOpen(true);
+    }, 3000);
 
-    if (storedUser) {
-      // Delay opening the modal by 3 seconds after detecting login
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-      }, 3000);
-
-      // Cleanup timeout
-      return () => clearTimeout(timer);
-    } else {
-      setIsOpen(false);
-    }
+    return () => clearTimeout(timer);
   }, []);
 
   const closeModal = () => {

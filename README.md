@@ -24,7 +24,7 @@ ClassSync offers tools that provide a complete overview of academic schedules, t
 - React
 - Tailwind css
 - React-Route (For route)
-- Firebase (For Authentication)
+- Recharts and Chart.js for data visualization
 
 ## ⚙️ Setup and Installation
 Follow these steps to set up the project locally:
@@ -38,19 +38,7 @@ cd classsync
 ```
 npm install
 ```
-3. Configure Firebase
-
-- Create a Firebase project at Firebase Console.
-- Obtain your Firebase credentials and set up .env variables.
-```
-REACT_APP_FIREBASE_API_KEY=your_api_key
-REACT_APP_FIREBASE_AUTH_DOMAIN=your_auth_domain
-REACT_APP_FIREBASE_PROJECT_ID=your_project_id
-REACT_APP_FIREBASE_STORAGE_BUCKET=your_storage_bucket
-REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-REACT_APP_FIREBASE_APP_ID=your_app_id
-```
-4. Start the Development Server
+3. Start the Development Server
 ```
 npm start
 ```
@@ -61,7 +49,7 @@ After setting up, use the following commands for development and deployment:
 
 - Development: Run npm start to start the local development server.
 - Build: Run npm run build to create an optimized production build.
-- Deploy: Deploy with Firebase, Vercel, or any preferred hosting provider.
+- Deploy: Deploy with Vercel, Netlify, or any preferred static hosting provider.
 ---
 # 📄 License
 This project is licensed under the MIT License - see the LICENSE file for details.

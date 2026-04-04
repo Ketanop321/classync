@@ -12,13 +12,13 @@ import {
   faBars,
   faTimes
 } from '@fortawesome/free-solid-svg-icons';
-import { useAuth } from '../context/authContext/authContext'; // 🔹 Importing AuthContext to access authentication state
 import Logo from '../assets/logo/logo.png';
 import Avatar from 'react-avatar';
+import { mockCurrentUser } from '../mocks/userData';
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { currentUser } = useAuth(); // 🔹 Accessing the logged-in user's data
+  const currentUser = mockCurrentUser;
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);

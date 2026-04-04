@@ -3,13 +3,13 @@ import { Link } from 'react-router-dom';
 import { fetchTableRows } from '../services/supabaseMvpApi';
 
 const SectionCard = ({ title, border, children }) => (
-  <div className={`bg-white p-4 sm:p-6 rounded-lg shadow-lg transition-shadow duration-300 border-t-4 ${border}`}>
-    <h2 className="text-xl sm:text-2xl font-semibold mb-4">{title}</h2>
+  <div className={`glass-card p-4 sm:p-6 rounded-lg transition-shadow duration-300 border-t-4 ${border}`}>
+    <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-[var(--text)] font-display">{title}</h2>
     {children}
   </div>
 );
 
-const EmptyState = ({ text }) => <p className="text-gray-500">{text}</p>;
+const EmptyState = ({ text }) => <p className="text-[var(--muted)]">{text}</p>;
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -52,32 +52,32 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-       <div className="p-4 sm:p-6 min-h-screen bg-gradient-to-r from-blue-50 to-indigo-100">
-        <p className="text-gray-600">Loading dashboard...</p>
+       <div className="p-4 sm:p-6 min-h-screen">
+        <p className="text-[var(--muted)]">Loading dashboard...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-       <div className="p-4 sm:p-6 min-h-screen bg-gradient-to-r from-blue-50 to-indigo-100">
-        <p className="text-red-600">{error}</p>
+       <div className="p-4 sm:p-6 min-h-screen">
+        <p className="text-[var(--danger)]">{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="p-4 sm:p-6 min-h-screen bg-gradient-to-r from-blue-50 to-indigo-100 relative">
-      <h1 className="text-2xl sm:text-3xl font-semibold mb-6 text-indigo-700 text-center sm:text-left">Dashboard Overview</h1>
+    <div className="p-4 sm:p-6 min-h-screen relative">
+      <h1 className="stagger-in text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)] text-center sm:text-left font-display">Dashboard Overview</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <SectionCard title="Student Announcements" border="border-indigo-500">
           {announcements.length === 0 ? (
             <EmptyState text="No announcements yet. Add one in Supabase table dashboard_announcements." />
           ) : (
-            <ul className="space-y-4 text-gray-700">
+            <ul className="space-y-4 text-[var(--text)]">
               {announcements.map((announcement) => (
-                <li key={announcement.id} className="border-b pb-2 hover:bg-indigo-50 rounded-md px-2 transition-colors duration-200">
+                <li key={announcement.id} className="border-b border-[var(--border)] pb-2 hover:bg-[rgba(255,255,255,0.06)] rounded-md px-2 transition-colors duration-200">
                   <h3 className="font-semibold">{announcement.title}</h3>
                   <p>{announcement.content}</p>
                 </li>
@@ -90,11 +90,11 @@ const Dashboard = () => {
           {recentActivities.length === 0 ? (
             <EmptyState text="No activities yet. User actions can populate user_activities." />
           ) : (
-            <ul className="space-y-4 text-gray-700">
+            <ul className="space-y-4 text-[var(--text)]">
               {recentActivities.map((activity) => (
-                <li key={activity.id} className="flex flex-col md:flex-row justify-between border-b pb-2 hover:bg-blue-50 rounded-md px-2 transition-colors duration-200">
+                <li key={activity.id} className="flex flex-col md:flex-row justify-between border-b border-[var(--border)] pb-2 hover:bg-[rgba(255,255,255,0.06)] rounded-md px-2 transition-colors duration-200">
                   <span>{activity.activity}</span>
-                  <span className="text-sm text-gray-500">{new Date(activity.happened_at).toLocaleString()}</span>
+                  <span className="text-sm text-[var(--muted)]">{new Date(activity.happened_at).toLocaleString()}</span>
                 </li>
               ))}
             </ul>
@@ -106,14 +106,14 @@ const Dashboard = () => {
         {upcomingExams.length === 0 ? (
           <EmptyState text="No upcoming exams yet. Add rows to exam_events." />
         ) : (
-          <ul className="space-y-4 text-gray-700">
+          <ul className="space-y-4 text-[var(--text)]">
             {upcomingExams.map((exam) => (
-              <li key={exam.id} className="flex flex-col md:flex-row justify-between border-b pb-2 hover:bg-green-50 rounded-md px-2 transition-colors duration-200">
+              <li key={exam.id} className="flex flex-col md:flex-row justify-between border-b border-[var(--border)] pb-2 hover:bg-[rgba(255,255,255,0.06)] rounded-md px-2 transition-colors duration-200">
                 <div>
                   <h3 className="font-semibold">{exam.subject}</h3>
-                  <p className="text-sm text-gray-500">{new Date(exam.exam_date).toLocaleDateString()}</p>
+                  <p className="text-sm text-[var(--muted)]">{new Date(exam.exam_date).toLocaleDateString()}</p>
                 </div>
-                <span className="text-sm text-gray-500">{exam.start_time || '--'} - {exam.end_time || '--'}</span>
+                <span className="text-sm text-[var(--muted)]">{exam.start_time || '--'} - {exam.end_time || '--'}</span>
               </li>
             ))}
           </ul>
@@ -125,11 +125,11 @@ const Dashboard = () => {
           {notifications.length === 0 ? (
             <EmptyState text="No notifications yet. Add rows to dashboard_notifications." />
           ) : (
-            <ul className="space-y-4 text-gray-700">
+            <ul className="space-y-4 text-[var(--text)]">
               {notifications.map((notification) => (
-                <li key={notification.id} className="flex items-center space-x-4 hover:bg-yellow-50 rounded-md px-2 transition-colors duration-200">
-                  <div className="bg-yellow-100 p-2 rounded-full">
-                    <span role="img" aria-label="notification" className="text-yellow-500">🔔</span>
+                <li key={notification.id} className="flex items-center space-x-4 hover:bg-[rgba(255,255,255,0.06)] rounded-md px-2 transition-colors duration-200">
+                  <div className="bg-[rgba(255,178,92,0.2)] p-2 rounded-full">
+                    <span role="img" aria-label="notification" className="text-[var(--accent-2)]">🔔</span>
                   </div>
                   <span>{notification.message}</span>
                 </li>
@@ -139,24 +139,24 @@ const Dashboard = () => {
         </SectionCard>
       </div>
 
-      <div className="mt-6 bg-white p-6 rounded-lg shadow-lg transition-shadow duration-300 border-t-4 border-purple-500">
-        <h2 className="text-xl sm:text-2xl font-semibold text-purple-600 mb-4">Quick Links</h2>
-        <ul className="space-y-4 text-gray-700">
-          <li className="flex items-center space-x-4 hover:bg-purple-50 rounded-md px-2 transition-colors duration-200">
-            <span role="img" aria-label="link" className="text-green-500">📚</span>
-            <Link to="/library" className="text-blue-500 hover:underline">Library Resources</Link>
+      <div className="glass-card mt-6 p-6 rounded-lg transition-shadow duration-300 border-t-4 border-purple-500">
+        <h2 className="text-xl sm:text-2xl font-semibold text-[var(--accent)] mb-4 font-display">Quick Links</h2>
+        <ul className="space-y-4 text-[var(--text)]">
+          <li className="flex items-center space-x-4 hover:bg-[rgba(255,255,255,0.06)] rounded-md px-2 transition-colors duration-200">
+            <span role="img" aria-label="link" className="text-[var(--accent)]">📚</span>
+            <Link to="/library" className="text-[var(--accent)] hover:underline">Library Resources</Link>
           </li>
-          <li className="flex items-center space-x-4 hover:bg-purple-50 rounded-md px-2 transition-colors duration-200">
-            <span role="img" aria-label="link" className="text-yellow-500">📝</span>
-            <Link to="/register-courses" className="text-blue-500 hover:underline">Course Registration</Link>
+          <li className="flex items-center space-x-4 hover:bg-[rgba(255,255,255,0.06)] rounded-md px-2 transition-colors duration-200">
+            <span role="img" aria-label="link" className="text-[var(--accent-2)]">📝</span>
+            <Link to="/register-courses" className="text-[var(--accent)] hover:underline">Course Registration</Link>
           </li>
-          <li className="flex items-center space-x-4 hover:bg-purple-50 rounded-md px-2 transition-colors duration-200">
-            <span role="img" aria-label="link" className="text-red-500">📅</span>
-            <Link to="/ClassSchedule" className="text-blue-500 hover:underline">Academic Calendar</Link>
+          <li className="flex items-center space-x-4 hover:bg-[rgba(255,255,255,0.06)] rounded-md px-2 transition-colors duration-200">
+            <span role="img" aria-label="link" className="text-[var(--danger)]">📅</span>
+            <Link to="/ClassSchedule" className="text-[var(--accent)] hover:underline">Academic Calendar</Link>
           </li>
-          <li className="flex items-center space-x-4 hover:bg-purple-50 rounded-md px-2 transition-colors duration-200">
-            <span role="img" aria-label="link" className="text-purple-500">👥</span>
-            <Link to="/student-support" className="text-blue-500 hover:underline">Student Support</Link>
+          <li className="flex items-center space-x-4 hover:bg-[rgba(255,255,255,0.06)] rounded-md px-2 transition-colors duration-200">
+            <span role="img" aria-label="link" className="text-[var(--muted)]">👥</span>
+            <Link to="/student-support" className="text-[var(--accent)] hover:underline">Student Support</Link>
           </li>
         </ul>
       </div>

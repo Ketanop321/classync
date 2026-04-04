@@ -41,8 +41,6 @@ const Login = () => {
     <main className="min-h-screen flex items-center justify-center bg-slate-100 p-4">
       <div className="w-full max-w-md bg-white border rounded-xl shadow-lg p-6">
         <h1 className="text-2xl font-bold text-slate-800 text-center mb-1">ClassSync</h1>
-        <p className="text-center text-slate-500 mb-6">Hosted with Supabase</p>
-
         <div className="flex mb-4 bg-slate-100 rounded-lg p-1">
           <button
             type="button"

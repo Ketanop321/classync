@@ -42,7 +42,7 @@ const Login = () => {
     <main className="min-h-screen flex items-center justify-center bg-slate-100 p-4">
       <div className="w-full max-w-md bg-white border rounded-xl shadow-lg p-6">
         <div className="relative mb-1 flex items-center justify-center">
-          <img src={logo} alt="" aria-hidden="true" className="absolute h-12 w-12 object-contain opacity-20" />
+          <img src={logo} alt="" className="absolute h-12 w-12 object-contain opacity-20" />
           <h1 className="relative text-2xl font-bold text-slate-800 text-center">ClassSync</h1>
         </div>
         <div className="flex mb-4 bg-slate-100 rounded-lg p-1">

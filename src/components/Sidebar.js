@@ -175,11 +175,6 @@ const Sidebar = () => {
         />
       )}
 
-      {/* Main Content Area */}
-      <div className="flex-1 lg:ml-64 p-4 overflow-auto hidden lg:block">
-        {/* Place your main content here */}
-      </div>
-      
       {/* Hamburger Button for mobile view */}
       <button
         onClick={toggleSidebar}

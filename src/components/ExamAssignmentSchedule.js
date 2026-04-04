@@ -178,9 +178,13 @@ function ExamAssignmentSchedule() {
                   <li key={assignment.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 py-2 border-b">
                     <span className="break-words">{assignment.title}</span>
                     <span className="text-sm">Due: {assignment.due_date}</span>
-                    <a href={assignment.details_url || '#'} className="text-blue-500 underline">
-                      Details
-                    </a>
+                    {assignment.details_url ? (
+                      <a href={assignment.details_url} className="text-blue-500 underline">
+                        Details
+                      </a>
+                    ) : (
+                      <span className="text-gray-500 text-sm">No details link</span>
+                    )}
                   </li>
                 ))}
               </ul>

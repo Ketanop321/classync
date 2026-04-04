@@ -191,7 +191,7 @@ const FeesManagement = () => {
               <option value="4th">4th Semester</option>
             </select>
           </div>
-           <div className="mt-0 lg:mt-0 lg:ml-4 flex items-center w-full lg:w-auto">
+           <div className="mt-0 lg:ml-4 flex items-center w-full lg:w-auto">
              <FaSearch className="text-white mr-2" />
             <input
               type="text"

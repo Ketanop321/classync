@@ -146,46 +146,49 @@ const LibraryPage = () => {
       {loading ? (
         <p className="text-gray-700">Loading library...</p>
       ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mt-6">
-          {filteredBooks.map((book) => (
-            <div key={book.id} className="bg-white rounded-lg shadow-lg p-4 flex flex-col items-center">
-              <img
-                src={book.cover_url || 'https://via.placeholder.com/160x220?text=Book'}
-                alt={book.title}
-                className="w-32 h-48 object-cover mb-4"
-              />
-              <h2 className="text-lg font-semibold text-center">{book.title}</h2>
-              <p className="text-sm text-gray-700">{book.author}</p>
-              <p className="text-xs text-gray-500">{book.genre || 'General'}</p>
-              {book.download_url ? (
-                <a href={book.download_url} target="_blank" rel="noreferrer" className="mt-4 px-4 py-2 bg-pink-400 text-white rounded hover:bg-pink-500">
-                  Download
-                </a>
-              ) : (
-                <button type="button" className="mt-4 px-4 py-2 bg-gray-300 text-white rounded cursor-not-allowed" disabled>
-                  No Download URL
+        {filteredBooks.length === 0 ? (
+          <p className="text-gray-700 mt-6">No books found.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
+            {filteredBooks.map((book) => (
+              <div key={book.id} className="bg-white rounded-lg shadow-lg p-4 flex flex-col items-center">
+                <img
+                  src={book.cover_url || 'https://via.placeholder.com/160x220?text=Book'}
+                  alt={book.title}
+                  className="w-32 h-48 object-cover mb-4"
+                />
+                <h2 className="text-lg font-semibold text-center">{book.title}</h2>
+                <p className="text-sm text-gray-700">{book.author}</p>
+                <p className="text-xs text-gray-500">{book.genre || 'General'}</p>
+                {book.download_url ? (
+                  <a href={book.download_url} target="_blank" rel="noreferrer" className="mt-4 px-4 py-2 bg-pink-400 text-white rounded hover:bg-pink-500">
+                    Download
+                  </a>
+                ) : (
+                  <button type="button" className="mt-4 px-4 py-2 bg-gray-300 text-white rounded cursor-not-allowed" disabled>
+                    No Download URL
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => reserveBook(book.id)}
+                  disabled={reservedBookIds.has(book.id)}
+                  className="mt-2 px-4 py-2 bg-pink-300 text-white rounded hover:bg-pink-400 disabled:opacity-60"
+                >
+                  {reservedBookIds.has(book.id) ? 'Reserved' : 'Reserve Book'}
                 </button>
-              )}
-              <button
-                type="button"
-                onClick={() => reserveBook(book.id)}
-                disabled={reservedBookIds.has(book.id)}
-                className="mt-2 px-4 py-2 bg-pink-300 text-white rounded hover:bg-pink-400 disabled:opacity-60"
-              >
-                {reservedBookIds.has(book.id) ? 'Reserved' : 'Reserve Book'}
-              </button>
-              <button
-                type="button"
-                onClick={() => addToReadLater(book.id)}
-                disabled={readLaterBookIds.has(book.id)}
-                className="mt-2 px-4 py-2 bg-blue-400 text-white rounded hover:bg-blue-500 disabled:opacity-60"
-              >
-                {readLaterBookIds.has(book.id) ? 'In Read Later' : 'Add to Read Later'}
-              </button>
-            </div>
-          ))}
-            {filteredBooks.length === 0 && <p className="text-gray-700 col-span-full">No books found.</p>}
+                <button
+                  type="button"
+                  onClick={() => addToReadLater(book.id)}
+                  disabled={readLaterBookIds.has(book.id)}
+                  className="mt-2 px-4 py-2 bg-blue-400 text-white rounded hover:bg-blue-500 disabled:opacity-60"
+                >
+                  {readLaterBookIds.has(book.id) ? 'In Read Later' : 'Add to Read Later'}
+                </button>
+              </div>
+            ))}
           </div>
+        )}
       )}
 
       <div className="mt-10 space-y-8">

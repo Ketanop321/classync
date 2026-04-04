@@ -24,7 +24,8 @@ ClassSync offers tools that provide a complete overview of academic schedules, t
 - React
 - Tailwind css
 - React-Route (For route)
-- Firebase (For Authentication)
+- Recharts and Chart.js for data visualization
+- Supabase (Auth, Postgres, Storage)
 
 ## ⚙️ Setup and Installation
 Follow these steps to set up the project locally:
@@ -38,19 +39,24 @@ cd classsync
 ```
 npm install
 ```
-3. Configure Firebase
+3. Configure Supabase Environment
+```bash
+cp .env.example .env.local
+```
+Fill in these values in `.env.local`:
+- REACT_APP_SUPABASE_URL
+- REACT_APP_SUPABASE_ANON_KEY
 
-- Create a Firebase project at Firebase Console.
-- Obtain your Firebase credentials and set up .env variables.
+4. Run Supabase Migration
+Use SQL file:
+- `supabase/migrations/20260404_mvp_schema.sql`
+
+You can run it from Supabase SQL editor or with psql:
+```powershell
+$env:PGPASSWORD='YOUR_DB_PASSWORD'; $env:PGSSLMODE='require'; psql -h db.<project-id>.supabase.co -p 5432 -U postgres -d postgres -v ON_ERROR_STOP=1 -f "supabase/migrations/20260404_mvp_schema.sql"
 ```
-REACT_APP_FIREBASE_API_KEY=your_api_key
-REACT_APP_FIREBASE_AUTH_DOMAIN=your_auth_domain
-REACT_APP_FIREBASE_PROJECT_ID=your_project_id
-REACT_APP_FIREBASE_STORAGE_BUCKET=your_storage_bucket
-REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-REACT_APP_FIREBASE_APP_ID=your_app_id
-```
-4. Start the Development Server
+
+5. Start the Development Server
 ```
 npm start
 ```
@@ -61,7 +67,7 @@ After setting up, use the following commands for development and deployment:
 
 - Development: Run npm start to start the local development server.
 - Build: Run npm run build to create an optimized production build.
-- Deploy: Deploy with Firebase, Vercel, or any preferred hosting provider.
+- Deploy: Deploy with Vercel, Netlify, or any preferred static hosting provider.
 ---
 # 📄 License
 This project is licensed under the MIT License - see the LICENSE file for details.

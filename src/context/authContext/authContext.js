@@ -1,53 +1,139 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from 'react';
+import { supabase } from '../../lib/supabaseClient';
 
-// 🔹 AuthContext banaya gaya hai taaki authentication state ko globally manage kiya ja sake
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
-// 🔹 AuthProvider component, jo saare children components ko authentication context provide karega
 export const AuthProvider = ({ children }) => {
-    // 🔹 currentUser state me logged-in user ki details store hongi
-    const [currentUser, setCurrentUser] = useState(null);
-    // 🔹 userLoggedIn state track karega ki user logged in hai ya nahi
-    const [userLoggedIn, setUserLoggedIn] = useState(false);
+  const [session, setSession] = useState(null);
+  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    // 🔹 Login function jo API call karega aur user authentication handle karega
-    const login = async (email, password) => {
-        try {
-            const API_URL = process.env.REACT_APP_API_URL; // 🔹 API ka base URL environment variables se fetch kiya ja raha hai
-            const response = await fetch(`${API_URL}/login`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password }),
-            });
+  const fetchProfile = async (userId) => {
+    if (!userId) {
+      setProfile(null);
+      return;
+    }
 
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.message || "Login failed");
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
 
-            // 🔹 User ka authentication token local storage me save karna
-            localStorage.setItem("token", data.token);
+    if (error) {
+      setProfile(null);
+      return;
+    }
 
-            // 🔹 User state update karna
-            setCurrentUser(data.user);
-            setUserLoggedIn(true);
-        } catch (error) {
-            throw error; // 🔹 Error ko handle karne ke liye throw kiya
-        }
+    setProfile(data);
+  };
+
+  useEffect(() => {
+    let mounted = true;
+
+    const init = async () => {
+      const {
+        data: { session: currentSession },
+      } = await supabase.auth.getSession();
+
+      if (!mounted) {
+        return;
+      }
+
+      setSession(currentSession);
+      setUser(currentSession?.user ?? null);
+      await fetchProfile(currentSession?.user?.id);
+      setLoading(false);
     };
 
-    // 🔹 Logout function jo user ko logout karega
-    const logout = () => {
-        localStorage.removeItem("token"); // 🔹 Token remove karna
-        setCurrentUser(null); // 🔹 User data reset karna
-        setUserLoggedIn(false); // 🔹 User ko logged out mark karna
+    init();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, nextSession) => {
+      setSession(nextSession);
+      setUser(nextSession?.user ?? null);
+      await fetchProfile(nextSession?.user?.id);
+      setLoading(false);
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const signIn = async (email, password) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      throw error;
+    }
+  };
+
+  const signUp = async (email, password, fullName) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+        },
+      },
+    });
+
+    if (error) {
+      throw error;
+    }
+  };
+
+  const signOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      throw error;
+    }
+  };
+
+  const updateProfile = async (updates) => {
+    if (!user?.id) {
+      throw new Error('No authenticated user found.');
+    }
+
+    const payload = {
+      id: user.id,
+      email: user.email,
+      ...updates,
     };
 
-    return (
-        // 🔹 AuthContext Provider jo saare components ko authentication data aur functions access karne dega
-        <AuthContext.Provider value={{ currentUser, userLoggedIn, login, logout }}>
-            {children}
-        </AuthContext.Provider>
-    );
+    const { error } = await supabase.from('profiles').upsert(payload, { onConflict: 'id' });
+
+    if (error) {
+      throw error;
+    }
+
+    await fetchProfile(user.id);
+  };
+
+  const value = {
+    session,
+    user,
+    profile,
+    loading,
+    isAuthenticated: Boolean(user),
+    signIn,
+    signUp,
+    signOut,
+    updateProfile,
+    refreshProfile: () => fetchProfile(user?.id),
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// 🔹 Custom hook jo context ka access easy bana dega
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return context;
+};

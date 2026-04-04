@@ -1,37 +1,101 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from './ScheduleDashboard';
+import { fetchTableRows, insertRow } from '../services/supabaseMvpApi';
 
 function ExamAssignmentSchedule() {
   const [selectedTab, setSelectedTab] = useState('exams');
-  const [showSchedule, setShowSchedule] = useState(false);
+  const [examEvents, setExamEvents] = useState([]);
+  const [assignments, setAssignments] = useState([]);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  const upcomingExams = [
-    { subject: 'Mathematics', date: '2024-11-20', startTime: '9:00 AM', endTime: '11:00 AM', room: 'Room 101' },
-    { subject: 'Physics', date: '2024-11-25', startTime: '1:00 PM', endTime: '3:00 PM', room: 'Room 102' },
-    { subject: 'Chemistry', date: '2024-11-28', startTime: '10:00 AM', endTime: '12:00 PM', room: 'Room 103' },
-  ];
+  const [examForm, setExamForm] = useState({
+    subject: '',
+    exam_date: '',
+    start_time: '',
+    end_time: '',
+    room: '',
+    semester: '',
+    course: '',
+  });
 
-  const assignments = [
-    { title: 'Math Assignment', dueDate: '2024-11-15', detailsLink: '#' },
-    { title: 'Physics Lab Report', dueDate: '2024-11-18', detailsLink: '#' },
-  ];
+  const [assignmentForm, setAssignmentForm] = useState({
+    title: '',
+    due_date: '',
+    details_url: '',
+    semester: '',
+    course: '',
+  });
 
-  const toggleScheduleView = () => {
-    setShowSchedule(!showSchedule);
+  const loadData = async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const [exams, assignmentRows] = await Promise.all([
+        fetchTableRows('exam_events', { orderBy: 'exam_date', orderConfig: { ascending: true } }),
+        fetchTableRows('assignment_items', { orderBy: 'due_date', orderConfig: { ascending: true } }),
+      ]);
+
+      setExamEvents(exams || []);
+      setAssignments(assignmentRows || []);
+    } catch (err) {
+      setError(err.message || 'Failed to load schedule data.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const handleExamChange = (event) => {
+    const { name, value } = event.target;
+    setExamForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleAssignmentChange = (event) => {
+    const { name, value } = event.target;
+    setAssignmentForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const submitExam = async (event) => {
+    event.preventDefault();
+    setError('');
+
+    try {
+      await insertRow('exam_events', examForm);
+      setExamForm({ subject: '', exam_date: '', start_time: '', end_time: '', room: '', semester: '', course: '' });
+      await loadData();
+    } catch (err) {
+      setError(err.message || 'Could not create exam event.');
+    }
+  };
+
+  const submitAssignment = async (event) => {
+    event.preventDefault();
+    setError('');
+
+    try {
+      await insertRow('assignment_items', assignmentForm);
+      setAssignmentForm({ title: '', due_date: '', details_url: '', semester: '', course: '' });
+      await loadData();
+    } catch (err) {
+      setError(err.message || 'Could not create assignment.');
+    }
   };
 
   return (
-    <div>
+    <div className="p-4 sm:p-6">
       <Navbar selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
 
-      <h2 className="text-2xl font-semibold mb-4">Exam & Assignment Schedule</h2>
+      <h2 className="text-xl sm:text-2xl font-semibold mb-4">Exam & Assignment Schedule</h2>
+      {error && <p className="text-red-600 mb-4">{error}</p>}
 
-      <div className="flex space-x-4 mb-8">
+      <div className="flex flex-wrap gap-2 sm:gap-4 mb-8">
         <button
-          onClick={() => {
-            setSelectedTab('exams');
-            toggleScheduleView();
-          }}
+          onClick={() => setSelectedTab('exams')}
           className={`py-2 px-4 ${selectedTab === 'exams' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
         >
           Upcoming Exams
@@ -44,79 +108,90 @@ function ExamAssignmentSchedule() {
         </button>
       </div>
 
-      {/* Conditionally Render Content Based on selectedTab and showSchedule */}
-      {selectedTab === 'exams' && !showSchedule && (
-        <div className="mb-8">
-          <h3 className="text-xl font-medium mb-2">Upcoming Exams</h3>
-          <ul className="bg-white p-4 shadow rounded">
-            {upcomingExams.map((exam, index) => (
-              <li key={index} className="flex justify-between py-2">
-                <span>{exam.subject}</span>
-                <span>{exam.date}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+      {selectedTab === 'exams' && (
+        <>
+          <form onSubmit={submitExam} className="bg-white p-4 rounded shadow mb-6 grid grid-cols-1 md:grid-cols-4 gap-3">
+            <input name="subject" value={examForm.subject} onChange={handleExamChange} placeholder="Subject" required className="border p-2 rounded" />
+            <input type="date" name="exam_date" value={examForm.exam_date} onChange={handleExamChange} required className="border p-2 rounded" />
+            <input type="time" name="start_time" value={examForm.start_time} onChange={handleExamChange} className="border p-2 rounded" />
+            <input type="time" name="end_time" value={examForm.end_time} onChange={handleExamChange} className="border p-2 rounded" />
+            <input name="room" value={examForm.room} onChange={handleExamChange} placeholder="Room" className="border p-2 rounded" />
+            <input name="semester" value={examForm.semester} onChange={handleExamChange} placeholder="Semester" className="border p-2 rounded" />
+            <input name="course" value={examForm.course} onChange={handleExamChange} placeholder="Course" className="border p-2 rounded" />
+            <button type="submit" className="bg-blue-600 text-white rounded p-2">Add Exam</button>
+          </form>
+
+          {loading ? (
+            <p className="text-gray-600">Loading exams...</p>
+          ) : examEvents.length === 0 ? (
+            <p className="text-gray-600">No upcoming exams found.</p>
+          ) : (
+            <div className="bg-white p-4 shadow rounded overflow-x-auto">
+              <h3 className="text-xl font-medium mb-2">Upcoming Exams</h3>
+              <table className="min-w-full text-left border-collapse">
+                <thead>
+                  <tr>
+                    <th className="border-b p-2">Subject</th>
+                    <th className="border-b p-2">Date</th>
+                    <th className="border-b p-2">Start</th>
+                    <th className="border-b p-2">End</th>
+                    <th className="border-b p-2">Room</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {examEvents.map((exam) => (
+                    <tr key={exam.id}>
+                      <td className="border-b p-2">{exam.subject}</td>
+                      <td className="border-b p-2">{exam.exam_date}</td>
+                      <td className="border-b p-2">{exam.start_time || '--'}</td>
+                      <td className="border-b p-2">{exam.end_time || '--'}</td>
+                      <td className="border-b p-2">{exam.room || '--'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
       )}
 
       {selectedTab === 'assignments' && (
-        <div>
-          <h3 className="text-xl font-medium mb-2">Assignments</h3>
-          <ul className="bg-white p-4 shadow rounded">
-            {assignments.map((assignment, index) => (
-              <li key={index} className="flex justify-between py-2">
-                <span>{assignment.title}</span>
-                <span>Due: {assignment.dueDate}</span>
-                <a href={assignment.detailsLink} className="text-blue-500 underline">Details</a>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <>
+          <form onSubmit={submitAssignment} className="bg-white p-4 rounded shadow mb-6 grid grid-cols-1 md:grid-cols-4 gap-3">
+            <input name="title" value={assignmentForm.title} onChange={handleAssignmentChange} placeholder="Title" required className="border p-2 rounded" />
+            <input type="date" name="due_date" value={assignmentForm.due_date} onChange={handleAssignmentChange} required className="border p-2 rounded" />
+            <input name="details_url" value={assignmentForm.details_url} onChange={handleAssignmentChange} placeholder="Details URL" className="border p-2 rounded" />
+            <input name="semester" value={assignmentForm.semester} onChange={handleAssignmentChange} placeholder="Semester" className="border p-2 rounded" />
+            <input name="course" value={assignmentForm.course} onChange={handleAssignmentChange} placeholder="Course" className="border p-2 rounded" />
+            <button type="submit" className="bg-blue-600 text-white rounded p-2">Add Assignment</button>
+          </form>
+
+          {loading ? (
+            <p className="text-gray-600">Loading assignments...</p>
+          ) : assignments.length === 0 ? (
+            <p className="text-gray-600">No assignments found.</p>
+          ) : (
+            <div className="bg-white p-4 shadow rounded">
+              <h3 className="text-xl font-medium mb-2">Assignments</h3>
+              <ul className="space-y-2">
+                {assignments.map((assignment) => (
+                  <li key={assignment.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 py-2 border-b">
+                    <span className="break-words">{assignment.title}</span>
+                    <span className="text-sm">Due: {assignment.due_date}</span>
+                    {assignment.details_url ? (
+                      <a href={assignment.details_url} className="text-blue-500 underline">
+                        Details
+                      </a>
+                    ) : (
+                      <span className="text-gray-500 text-sm">No details link</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </>
       )}
-
-      {showSchedule && <ExamSchedule />} {/* Display exam schedule when showSchedule is true */}
-    </div>
-  );
-}
-
-// Exam schedule component in table format
-function ExamSchedule() {
-  const upcomingExams = [
-    { day: 'Wednesday', date: '2024-11-20', startTime: '9:00 AM', endTime: '10:30 AM', subject: 'Mathematics', room: 'Room 101' },
-    { day: 'Friday', date: '2024-11-25', startTime: '11:00 AM', endTime: '12:30 PM', subject: 'Physics', room: 'Room 102' },
-    { day: 'Monday', date: '2024-11-28', startTime: '1:00 PM', endTime: '2:30 PM', subject: 'Chemistry', room: 'Room 103' },
-  ];
-
-  return (
-    <div>
-      <h3 className="text-xl font-medium mb-2">Exam Schedule - Fall 2023</h3>
-      <div className="bg-white p-4 shadow rounded">
-        <h4 className="text-lg font-semibold mb-2">Weekly Exam Schedule</h4>
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr>
-              <th className="border-b p-2">Day</th>
-              <th className="border-b p-2">Date</th>
-              <th className="border-b p-2">Start Time</th>
-              <th className="border-b p-2">End Time</th>
-              <th className="border-b p-2">Subject</th>
-              <th className="border-b p-2">Room No.</th>
-            </tr>
-          </thead>
-          <tbody>
-            {upcomingExams.map((exam, index) => (
-              <tr key={index}>
-                <td className="border-b p-2">{exam.day}</td>
-                <td className="border-b p-2">{exam.date}</td>
-                <td className="border-b p-2">{exam.startTime}</td>
-                <td className="border-b p-2">{exam.endTime}</td>
-                <td className="border-b p-2">{exam.subject}</td>
-                <td className="border-b p-2">{exam.room}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
     </div>
   );
 }

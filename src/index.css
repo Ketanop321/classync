@@ -13,6 +13,7 @@
   --auth-accent: #22d3ee;
   --auth-accent-warm: #ff6f91;
   --auth-border: #2a3561;
+  --auth-toggle-active-text: #020b18;
 }
 
 body {
@@ -101,7 +102,7 @@ body {
 .auth-title {
   margin: 0;
   text-align: center;
-  font-family: 'Unbounded', cursive;
+  font-family: 'Unbounded', sans-serif;
   font-size: clamp(1.7rem, 3.5vw, 2.1rem);
   color: var(--auth-text);
   letter-spacing: 0.03em;
@@ -140,7 +141,7 @@ body {
 }
 
 .auth-toggle-button.is-active {
-  color: #020b18;
+  color: var(--auth-toggle-active-text);
   background: linear-gradient(120deg, var(--auth-accent) 0%, #71f4ff 100%);
   box-shadow: 0 8px 20px rgba(34, 211, 238, 0.35);
 }

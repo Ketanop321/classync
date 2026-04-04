@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/authContext/authContext';
+import logo from '../../assets/logo/logo.png';
 
 const Login = () => {
   const { isAuthenticated, signIn, signUp } = useAuth();
@@ -40,7 +41,10 @@ const Login = () => {
   return (
     <main className="min-h-screen flex items-center justify-center bg-slate-100 p-4">
       <div className="w-full max-w-md bg-white border rounded-xl shadow-lg p-6">
-        <h1 className="text-2xl font-bold text-slate-800 text-center mb-1">ClassSync</h1>
+        <div className="relative mb-1 flex items-center justify-center">
+          <img src={logo} alt="" aria-hidden="true" className="absolute h-12 w-12 object-contain opacity-20" />
+          <h1 className="relative text-2xl font-bold text-slate-800 text-center">ClassSync</h1>
+        </div>
         <div className="flex mb-4 bg-slate-100 rounded-lg p-1">
           <button
             type="button"
